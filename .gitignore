@@ -1,0 +1,55 @@
+# Auto Claude data directory
+.auto-claude/
+.worktrees/
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Vite
+.vite/
+
+# Rust
+src-tauri/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+
+# OCR Models (large files, should not be in git)
+models/
+*.onnx
+*.pt
+*.pth
+*.bin
+*.safetensors
