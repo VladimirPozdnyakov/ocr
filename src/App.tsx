@@ -48,8 +48,8 @@ function App() {
             <ImageUploader />
           </Box>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {/* Image and Canvas */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '100%', md: '60% 40%' }, gap: 3, alignItems: 'start' }}>
+            {/* Left Column - Image */}
             <Box>
               <Typography variant="h5" gutterBottom>
                 {image.fileName}
@@ -60,8 +60,8 @@ function App() {
               <ImageCanvas maxWidth={1200} maxHeight={800} />
             </Box>
 
-            {/* Controls and Results Grid */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: { md: '350px 1fr' }, gap: 3 }}>
+            {/* Right Column - Controls and Results */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               {/* OCR Controls */}
               <Box>
                 <OCRControls />

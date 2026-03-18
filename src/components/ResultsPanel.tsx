@@ -3,13 +3,17 @@ import {
   Box,
   Paper,
   Typography,
-  Grid,
-  Card,
-  CardContent,
   IconButton,
   Chip,
   Alert,
   Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
 } from '@mui/material';
 import {
   ContentCopy as CopyIcon,
@@ -29,6 +33,14 @@ export interface ResultsPanelRef {
 export const ResultsPanel = forwardRef<ResultsPanelRef>((_props, ref) => {
   const { selectionAreas, ocrResults, removeOCRResult } = useOCRStore();
   const { showSuccess, showError, showInfo } = useToast();
+
+  // Debug logging
+  console.log('ResultsPanel render:', {
+    selectionAreas: selectionAreas.length,
+    ocrResults: ocrResults.size,
+    areaIds: selectionAreas.map(a => a.id),
+    resultIds: Array.from(ocrResults.keys())
+  });
 
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
@@ -126,7 +138,7 @@ export const ResultsPanel = forwardRef<ResultsPanelRef>((_props, ref) => {
   }
 
   return (
-    <Paper elevation={2} sx={{ p: 3, mt: 2 }}>
+    <Paper elevation={2} sx={{ p: 2, mt: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">
           OCR Results
@@ -148,103 +160,132 @@ export const ResultsPanel = forwardRef<ResultsPanelRef>((_props, ref) => {
             onClick={handleExportResults}
             disabled={ocrResults.size === 0}
           >
-            Export JSON
+            Export
           </Button>
         </Box>
       </Box>
 
-      <Grid container spacing={2}>
-        {sortedAreas.map((area) => {
-          const result = ocrResults.get(area.id);
-          return (
-            <Grid item xs={12} md={6} key={area.id}>
-              <Card
-                variant="outlined"
-                sx={{
-                  borderLeft: `4px solid ${area.color}`,
-                  backgroundColor: result ? 'background.paper' : 'action.disabledBackground',
-                }}
-              >
-                <CardContent>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      mb: 1,
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <TableContainer sx={{ maxHeight: 400, overflow: 'auto' }}>
+        <Table size="small" stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ width: 80 }}>#</TableCell>
+              <TableCell sx={{ width: 100 }}>Confidence</TableCell>
+              <TableCell>Text</TableCell>
+              <TableCell sx={{ width: 80 }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedAreas.map((area) => {
+              const result = ocrResults.get(area.id);
+              const areaNumber = area.id.split('-')[1] || area.id.slice(0, 8);
+
+              return (
+                <TableRow
+                  key={area.id}
+                  sx={{
+                    borderLeft: `4px solid ${area.color}`,
+                    backgroundColor: result ? 'inherit' : 'action.disabledBackground',
+                    '&:hover': {
+                      backgroundColor: result ? 'action.hover' : 'action.disabledBackground',
+                    },
+                  }}
+                >
+                  <TableCell>
+                    <Chip
+                      label={areaNumber}
+                      size="small"
+                      sx={{
+                        backgroundColor: area.color,
+                        color: 'white',
+                        fontWeight: 'bold',
+                        minWidth: 40,
+                      }}
+                    />
+                  </TableCell>
+
+                  <TableCell>
+                    {result ? (
                       <Chip
-                        label={`#${area.id.split('-')[1] || area.id.slice(0, 8)}`}
+                        icon={<CheckIcon sx={{ fontSize: 14 }} />}
+                        label={`${(result.confidence * 100).toFixed(0)}%`}
                         size="small"
-                        sx={{
-                          backgroundColor: area.color,
-                          color: 'white',
-                          fontWeight: 'bold',
-                        }}
+                        color="success"
+                        variant="outlined"
                       />
-                      {result && (
-                        <Chip
-                          icon={<CheckIcon />}
-                          label={`${(result.confidence * 100).toFixed(0)}%`}
-                          size="small"
-                          color="success"
-                          variant="outlined"
-                        />
-                      )}
-                    </Box>
-                    <Box>
-                      {result && (
-                        <>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                        Pending
+                      </Typography>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    {result ? (
+                      <Box sx={{ width: '100%' }}>
+                        <Tooltip
+                          title={
+                            <Box sx={{ fontSize: '0.75rem', maxWidth: '80vw' }}>
+                              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                                {result.text}
+                              </div>
+                              <div style={{ marginTop: '8px', fontSize: '0.7rem', opacity: 0.8 }}>
+                                Engine: {result.engine} | Language: {result.language} | Time: {result.processing_time_ms}ms
+                              </div>
+                            </Box>
+                          }
+                          arrow
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              cursor: 'help',
+                              color: 'text.primary',
+                              width: '100%',
+                            }}
+                          >
+                            {result.text || '<empty result>'}
+                          </Typography>
+                        </Tooltip>
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                        Not processed yet
+                      </Typography>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    {result && (
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <Tooltip title="Copy text">
                           <IconButton
                             size="small"
                             onClick={() => handleCopyText(result.text)}
-                            title="Copy to clipboard"
                           >
                             <CopyIcon fontSize="small" />
                           </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete result">
                           <IconButton
                             size="small"
                             onClick={() => handleDeleteResult(area.id)}
-                            title="Delete result"
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
-                        </>
-                      )}
-                    </Box>
-                  </Box>
-
-                  {result ? (
-                    <>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        <strong>Engine:</strong> {result.engine} | <strong>Language:</strong>{' '}
-                        {result.language} | <strong>Time:</strong>{' '}
-                        {result.processing_time_ms}ms
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          whiteSpace: 'pre-wrap',
-                          wordBreak: 'break-word',
-                          mt: 1,
-                        }}
-                      >
-                        {result.text || '<empty result>'}
-                      </Typography>
-                    </>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                      Not processed yet
-                    </Typography>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
+                        </Tooltip>
+                      </Box>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Paper>
   );
 });

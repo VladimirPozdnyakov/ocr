@@ -45,7 +45,9 @@ export function useOCR() {
           ],
         });
 
+        console.log('OCR result received:', result);
         setOCRResult(areaId, result);
+        console.log('Result saved for area:', areaId);
       } catch (error) {
         console.error('Failed to process area:', areaId, error);
       } finally {
