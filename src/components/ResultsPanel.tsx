@@ -18,7 +18,6 @@ import {
 import {
   ContentCopy as CopyIcon,
   Delete as DeleteIcon,
-  CheckCircle as CheckIcon,
   Download as ExportIcon,
   SelectAll as CopyAllIcon,
 } from '@mui/icons-material';
@@ -169,8 +168,7 @@ export const ResultsPanel = forwardRef<ResultsPanelRef>((_props, ref) => {
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ width: 80 }}>#</TableCell>
-              <TableCell sx={{ width: 100 }}>Confidence</TableCell>
+              <TableCell sx={{ width: 60 }}>#</TableCell>
               <TableCell>Text</TableCell>
               <TableCell sx={{ width: 80 }}>Actions</TableCell>
             </TableRow>
@@ -178,7 +176,7 @@ export const ResultsPanel = forwardRef<ResultsPanelRef>((_props, ref) => {
           <TableBody>
             {sortedAreas.map((area) => {
               const result = ocrResults.get(area.id);
-              const areaNumber = area.id.split('-')[1] || area.id.slice(0, 8);
+              const areaNumber = area.number;
 
               return (
                 <TableRow
@@ -202,22 +200,6 @@ export const ResultsPanel = forwardRef<ResultsPanelRef>((_props, ref) => {
                         minWidth: 40,
                       }}
                     />
-                  </TableCell>
-
-                  <TableCell>
-                    {result ? (
-                      <Chip
-                        icon={<CheckIcon sx={{ fontSize: 14 }} />}
-                        label={`${(result.confidence * 100).toFixed(0)}%`}
-                        size="small"
-                        color="success"
-                        variant="outlined"
-                      />
-                    ) : (
-                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                        Pending
-                      </Typography>
-                    )}
                   </TableCell>
 
                   <TableCell>

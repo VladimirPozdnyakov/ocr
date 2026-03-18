@@ -1,5 +1,6 @@
 export interface SelectionArea {
   id: string;
+  number: number;
   x: number;
   y: number;
   width: number;

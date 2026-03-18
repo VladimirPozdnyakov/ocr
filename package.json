@@ -10,7 +10,10 @@
     "tauri": "tauri",
     "tauri:dev": "GDK_BACKEND=x11 LIBGL_ALWAYS_SOFTWARE=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 tauri dev",
     "tauri:build": "tauri build",
-    "clean": "rm -rf node_modules/.vite dist src-tauri/target"
+    "clean": "rm -rf node_modules/.vite dist src-tauri/target",
+    "install:ocr": "npm run install:ocr:unix",
+    "install:ocr:unix": "./install-ocr-deps.sh",
+    "install:ocr:windows": "install-ocr-deps.bat"
   },
   "dependencies": {
     "@emotion/react": "^11.11.0",

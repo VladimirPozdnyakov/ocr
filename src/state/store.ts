@@ -16,8 +16,10 @@ interface OCRStore {
   // Selection areas
   selectionAreas: SelectionArea[];
   addSelectionArea: (area: SelectionArea) => void;
+  updateSelectionArea: (id: string, updates: Partial<SelectionArea>) => void;
   removeSelectionArea: (id: string) => void;
   clearSelectionAreas: () => void;
+  renumberAreas: () => void;
 
   // OCR config
   ocrConfig: OCRConfig;
@@ -67,7 +69,14 @@ export const useOCRStore = create<OCRStore>()(
           selectionAreas: [...state.selectionAreas, area],
         })),
 
-      removeSelectionArea: (id) =>
+      updateSelectionArea: (id, updates) =>
+        set((state) => ({
+          selectionAreas: state.selectionAreas.map((area) =>
+            area.id === id ? { ...area, ...updates } : area
+          ),
+        })),
+
+      removeSelectionArea: (id) => {
         set((state) => ({
           selectionAreas: state.selectionAreas.filter((area) => area.id !== id),
           ocrResults: (() => {
@@ -75,7 +84,24 @@ export const useOCRStore = create<OCRStore>()(
             newResults.delete(id);
             return newResults;
           })(),
-        })),
+        }));
+
+        // Renumber remaining areas
+        get().renumberAreas();
+      },
+
+      renumberAreas: () => {
+        set((state) => {
+          const updatedAreas = state.selectionAreas.map((area, index) => ({
+            ...area,
+            number: index + 1,
+          }));
+
+          return {
+            selectionAreas: updatedAreas,
+          };
+        });
+      },
 
       clearSelectionAreas: () =>
         set({

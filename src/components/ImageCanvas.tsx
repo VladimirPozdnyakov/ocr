@@ -92,6 +92,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
 
       const newArea = {
         id: `area-${Date.now()}`,
+        number: selectionAreas.length + 1,
         x: originalX,
         y: originalY,
         width: originalWidth,

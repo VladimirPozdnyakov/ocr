@@ -26,6 +26,7 @@ async-trait = "0.1"
 base64 = "0.22"
 tauri-plugin-devtools = "2.0"
 uuid = { version = "1.0", features = ["v4"] }
+regex = "1"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
