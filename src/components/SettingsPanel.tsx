@@ -1,23 +1,4 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  FormControlLabel,
-  Switch,
-  Box,
-  Divider,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import {
-  Settings as SettingsIcon,
-  Info as InfoIcon,
-  Restore as RestoreIcon,
-} from '@mui/icons-material';
 import { useOCRStore } from '../state/store';
 import { SUPPORTED_LANGUAGES, OCR_ENGINES } from '../lib/constants';
 import { useToast } from './ToastProvider';
@@ -33,7 +14,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ open, onClose }) =
 
   const [autoProcess, setAutoProcess] = useState(false);
   const [showConfidence, setShowConfidence] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
 
   const handleRestoreDefaults = () => {
     setOCREngine('ortheus');
@@ -41,162 +21,266 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ open, onClose }) =
     setConfidenceThreshold(0.7);
     setAutoProcess(false);
     setShowConfidence(true);
-    setDarkMode(false);
     showSuccess('Settings restored to defaults');
   };
 
-  const handleClose = () => {
-    onClose();
-  };
+  if (!open) return null;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SettingsIcon />
-          <Typography variant="h6" component="span" sx={{ flexGrow: 1 }}>
-            Settings
-          </Typography>
-          <Tooltip title="Restore defaults">
-            <IconButton onClick={handleRestoreDefaults} size="small">
-              <RestoreIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </DialogTitle>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(26, 22, 20, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1rem'
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="editorial-card"
+        style={{
+          maxWidth: '500px',
+          width: '100%',
+          maxHeight: '80vh',
+          overflowY: 'auto',
+          background: 'var(--paper-white)'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem',
+          paddingBottom: '1rem',
+          borderBottom: '1px solid var(--ink-faint)'
+        }}>
+          <div>
+            <h3 style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '1.5rem',
+              fontWeight: 600,
+              marginBottom: '0.25rem'
+            }}>
+              Settings
+            </h3>
+            <p className="editorial-meta" style={{ margin: 0 }}>
+              Configure your OCR experience
+            </p>
+          </div>
+          <button
+            onClick={handleRestoreDefaults}
+            className="editorial-button"
+            style={{
+              padding: '0.5rem 1rem',
+              fontSize: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+            title="Restore defaults"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            Reset
+          </button>
+        </div>
 
-      <DialogContent dividers>
-        {/* OCR Settings */}
-        <Typography variant="subtitle2" color="primary" gutterBottom>
-          OCR Configuration
-        </Typography>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Current Engine: <strong>{ocrConfig.engine}</strong>
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Current Language: <strong>
-              {SUPPORTED_LANGUAGES.find(l => l.code === ocrConfig.language)?.name}
-            </strong>
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Confidence Threshold: <strong>{ocrConfig.confidence_threshold.toFixed(2)}</strong>
-          </Typography>
-        </Box>
-
-        <Divider sx={{ my: 2 }} />
+        {/* OCR Configuration */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <p className="editorial-meta" style={{ marginBottom: '1rem', color: 'var(--accent-blue)' }}>
+            Current Configuration
+          </p>
+          <div style={{
+            background: 'var(--paper-warm)',
+            padding: '1rem',
+            border: '1px solid var(--ink-faint)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '0.5rem 0',
+              borderBottom: '1px solid var(--ink-faint)'
+            }}>
+              <span style={{ color: 'var(--ink-medium)', fontSize: '0.875rem' }}>Engine</span>
+              <strong style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem' }}>
+                {ocrConfig.engine}
+              </strong>
+            </div>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '0.5rem 0',
+              borderBottom: '1px solid var(--ink-faint)'
+            }}>
+              <span style={{ color: 'var(--ink-medium)', fontSize: '0.875rem' }}>Language</span>
+              <strong style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem' }}>
+                {SUPPORTED_LANGUAGES.find(l => l.code === ocrConfig.language)?.name}
+              </strong>
+            </div>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: '0.5rem 0'
+            }}>
+              <span style={{ color: 'var(--ink-medium)', fontSize: '0.875rem' }}>Confidence</span>
+              <strong style={{ fontFamily: 'var(--font-mono)', fontSize: '0.875rem' }}>
+                {(ocrConfig.confidence_threshold * 100).toFixed(0)}%
+              </strong>
+            </div>
+          </div>
+        </div>
 
         {/* Behavior Settings */}
-        <Typography variant="subtitle2" color="primary" gutterBottom>
-          Behavior
-        </Typography>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <FormControlLabel
-            control={
-              <Switch
+        <div style={{ marginBottom: '1.5rem' }}>
+          <p className="editorial-meta" style={{ marginBottom: '1rem', color: 'var(--accent-blue)' }}>
+            Behavior
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem',
+              cursor: 'pointer',
+              padding: '0.75rem',
+              background: 'var(--paper-warm)',
+              border: '1px solid var(--ink-faint)'
+            }}>
+              <input
+                type="checkbox"
                 checked={autoProcess}
                 onChange={(e) => setAutoProcess(e.target.checked)}
-                color="primary"
+                style={{ marginTop: '0.25rem' }}
               />
-            }
-            label="Auto-process areas after creation"
-          />
-          <Typography variant="caption" color="text.secondary" sx={{ ml: 4, mt: -1 }}>
-            Automatically run OCR when you create a new selection area
-          </Typography>
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: '0.25rem', fontSize: '0.9rem' }}>
+                  Auto-process areas
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--ink-medium)' }}>
+                  Automatically run OCR when you create a new selection area
+                </div>
+              </div>
+            </label>
 
-          <FormControlLabel
-            control={
-              <Switch
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.75rem',
+              cursor: 'pointer',
+              padding: '0.75rem',
+              background: 'var(--paper-warm)',
+              border: '1px solid var(--ink-faint)'
+            }}>
+              <input
+                type="checkbox"
                 checked={showConfidence}
                 onChange={(e) => setShowConfidence(e.target.checked)}
-                color="primary"
+                style={{ marginTop: '0.25rem' }}
               />
-            }
-            label="Show confidence scores"
-          />
-          <Typography variant="caption" color="text.secondary" sx={{ ml: 4, mt: -1 }}>
-            Display confidence percentage on result cards
-          </Typography>
-        </Box>
-
-        <Divider sx={{ my: 2 }} />
-
-        {/* Appearance Settings */}
-        <Typography variant="subtitle2" color="primary" gutterBottom>
-          Appearance
-        </Typography>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={darkMode}
-                onChange={(e) => setDarkMode(e.target.checked)}
-                color="primary"
-              />
-            }
-            label="Dark mode (experimental)"
-          />
-          <Typography variant="caption" color="text.secondary" sx={{ ml: 4, mt: -1 }}>
-            Enable dark theme for the application
-          </Typography>
-        </Box>
-
-        <Divider sx={{ my: 2 }} />
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: '0.25rem', fontSize: '0.9rem' }}>
+                  Show confidence scores
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--ink-medium)' }}>
+                  Display confidence percentage on result cards
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
 
         {/* About */}
-        <Typography variant="subtitle2" color="primary" gutterBottom>
-          About
-        </Typography>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <p className="editorial-meta" style={{ marginBottom: '1rem', color: 'var(--accent-blue)' }}>
+            About
+          </p>
+          <div style={{
+            background: 'var(--ink-black)',
+            color: 'var(--paper-white)',
+            padding: '1.5rem',
+            fontFamily: 'var(--font-display)'
+          }}>
+            <h4 style={{
+              color: 'var(--paper-white)',
+              fontSize: '1.25rem',
+              marginBottom: '0.5rem',
+              fontWeight: 600
+            }}>
+              Lexicon
+            </h4>
+            <p style={{
+              color: 'var(--ink-light)',
+              fontSize: '0.875rem',
+              margin: '0.5rem 0',
+              fontFamily: 'var(--font-body)'
+            }}>
+              Version 0.1.0
+            </p>
+            <p style={{
+              color: 'var(--ink-light)',
+              fontSize: '0.875rem',
+              margin: '0.5rem 0',
+              fontFamily: 'var(--font-body)'
+            }}>
+              Multi-language OCR with area selection
+            </p>
+            <div className="editorial-divider" style={{ margin: '1rem 0', borderColor: 'var(--ink-medium)' }}></div>
+            <p style={{
+              color: 'var(--ink-light)',
+              fontSize: '0.75rem',
+              margin: 0,
+              fontFamily: 'var(--font-mono)'
+            }}>
+              Engines: {OCR_ENGINES.join(' · ')}
+            </p>
+            <p style={{
+              color: 'var(--ink-light)',
+              fontSize: '0.75rem',
+              margin: '0.5rem 0 0',
+              fontFamily: 'var(--font-mono)'
+            }}>
+              {SUPPORTED_LANGUAGES.length} languages supported
+            </p>
+          </div>
+        </div>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-          <Typography variant="body2" color="text.secondary">
-            <strong>OCR Desktop</strong> v0.1.0
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Multi-language OCR with area selection
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Engines: {OCR_ENGINES.join(', ')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Languages: {SUPPORTED_LANGUAGES.length} supported
-          </Typography>
-        </Box>
+        {/* Footer */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '1rem 0',
+          borderTop: '1px solid var(--ink-faint)',
+          marginTop: '1rem'
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-light)" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span className="editorial-meta">Settings are automatically saved</span>
+        </div>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
-          <InfoIcon fontSize="small" color="info" />
-          <Typography variant="caption" color="text.secondary">
-            Settings are automatically saved
-          </Typography>
-        </Box>
-      </DialogContent>
-
-      <DialogActions>
-        <Button onClick={handleClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-export const SettingsButton: React.FC<{ onOpen: () => void }> = ({ onOpen }) => {
-  return (
-    <Tooltip title="Settings">
-      <IconButton
-        onClick={onOpen}
-        color="inherit"
-        sx={{
-          color: 'white',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          }
-        }}
-      >
-        <SettingsIcon />
-      </IconButton>
-    </Tooltip>
+        {/* Close Button */}
+        <button
+          className="editorial-button editorial-button-primary"
+          onClick={onClose}
+          style={{
+            justifyContent: 'center',
+            padding: '1rem',
+            marginTop: '1rem'
+          }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
   );
 };

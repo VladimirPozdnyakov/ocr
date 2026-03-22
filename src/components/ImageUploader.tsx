@@ -1,6 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Button, Box, Typography, alpha } from '@mui/material';
-import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import { useOCRStore } from '../state/store';
 import { useToast } from './ToastProvider';
 import { open } from '@tauri-apps/plugin-dialog';
@@ -16,8 +14,6 @@ export const ImageUploader: React.FC = () => {
   const handleFileUpload = (file: File | null) => {
     if (!file) return;
 
-    console.log('Handling file upload:', file.name, file.type, file.size);
-
     // Validate file type
     if (!file.type.startsWith('image/')) {
       showError('Please select an image file');
@@ -27,14 +23,10 @@ export const ImageUploader: React.FC = () => {
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      console.log('FileReader onload triggered');
       const dataUrl = e.target?.result as string;
-      console.log('DataURL length:', dataUrl?.length);
-
       const img = new Image();
 
       img.onload = () => {
-        console.log('Image loaded:', img.width, 'x', img.height);
         setImage({
           dataUrl,
           width: img.width,
@@ -44,16 +36,14 @@ export const ImageUploader: React.FC = () => {
         showSuccess('Image loaded successfully!');
       };
 
-      img.onerror = (error) => {
-        console.error('Image load error:', error);
+      img.onerror = () => {
         showError('Failed to load image');
       };
 
       img.src = dataUrl;
     };
 
-    reader.onerror = (error) => {
-      console.error('FileReader error:', error);
+    reader.onerror = () => {
       showError('Failed to read file');
     };
 
@@ -62,8 +52,6 @@ export const ImageUploader: React.FC = () => {
 
   const handleTauriFileUpload = async () => {
     try {
-      console.log('Opening Tauri file dialog...');
-
       const selected = await open({
         multiple: false,
         filters: [{
@@ -72,21 +60,13 @@ export const ImageUploader: React.FC = () => {
         }]
       });
 
-      console.log('Selected file path:', selected);
-
       if (selected && typeof selected === 'string') {
-        // Use Tauri command to read the file
-        console.log('Reading file with Tauri command...');
         const dataUrl = await invoke<string>('read_image_file', {
           filePath: selected
         });
 
-        console.log('Got data URL, length:', dataUrl.length);
-
-        // Load image to get dimensions
         const img = new Image();
         img.onload = () => {
-          console.log('Image loaded:', img.width, 'x', img.height);
           setImage({
             dataUrl,
             width: img.width,
@@ -96,13 +76,11 @@ export const ImageUploader: React.FC = () => {
           showSuccess('Image loaded successfully!');
         };
         img.onerror = () => {
-          console.error('Failed to load image from data URL');
           showError('Failed to load image');
         };
         img.src = dataUrl;
       }
     } catch (error) {
-      console.error('Error in Tauri file upload:', error);
       showError(`Failed to load image: ${error}`);
     }
   };
@@ -152,48 +130,57 @@ export const ImageUploader: React.FC = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 400,
-        border: '4px dashed',
-        borderColor: isDragging ? 'primary.main' : 'grey.300',
-        borderRadius: 2,
-        backgroundColor: isDragging
-          ? alpha('#1976d2', 0.1)
-          : 'grey.50',
-        cursor: 'pointer',
-        transition: 'all 0.3s',
-        '&:hover': {
-          borderColor: 'primary.main',
-          backgroundColor: alpha('#1976d2', 0.05),
-        },
-      }}
+    <div
+      className={`upload-zone ${isDragging ? 'drag-over' : ''}`}
       onDragOver={handleDragOver}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onClick={handleClick}
     >
-      <CloudUploadIcon
-        sx={{
-          fontSize: 80,
-          color: isDragging ? 'primary.main' : 'grey.400',
-          mb: 2,
-          transition: 'color 0.3s',
-        }}
-      />
-      <Typography variant="h6" color="text.secondary" gutterBottom>
-        Upload an image to start
-      </Typography>
-      <Typography variant="body2" color="text.secondary" gutterBottom>
-        Supports PNG, JPG, JPEG, GIF, BMP, WEBP
-      </Typography>
-      <Typography variant="caption" color="text.secondary" gutterBottom>
+      <svg
+        className="upload-zone-icon"
+        viewBox="0 0 24 24"
+        style={{ stroke: isDragging ? 'var(--ink-black)' : 'var(--ink-medium)' }}
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+
+      <h3 style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: '1.5rem',
+        fontWeight: 600,
+        marginBottom: '0.5rem',
+        color: 'var(--ink-dark)'
+      }}>
+        {isDragging ? 'Drop your image here' : 'Upload an image'}
+      </h3>
+
+      <p style={{
+        margin: '0 0 1.5rem',
+        color: 'var(--ink-medium)',
+        fontSize: '1rem'
+      }}>
         Drag & drop or click to browse
-      </Typography>
+      </p>
+
+      <span className="editorial-meta" style={{ marginBottom: '1rem', display: 'block' }}>
+        PNG · JPG · JPEG · GIF · BMP · WEBP
+      </span>
+
+      <button
+        className="editorial-button editorial-button-primary"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleClick();
+        }}
+        style={{ marginTop: '1rem' }}
+      >
+        Choose File
+      </button>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -201,17 +188,6 @@ export const ImageUploader: React.FC = () => {
         style={{ display: 'none' }}
         onChange={handleFileChange}
       />
-      <Button
-        variant="contained"
-        startIcon={<CloudUploadIcon />}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleClick();
-        }}
-        sx={{ mt: 2 }}
-      >
-        Choose File
-      </Button>
-    </Box>
+    </div>
   );
 };

@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Stage, Layer, Rect, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
-import { Box } from '@mui/material';
 import { useOCRStore } from '../state/store';
 import useImage from 'use-image';
 import { ENGINE_COLORS } from '../lib/constants';
@@ -116,16 +115,15 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
   };
 
   return (
-    <Box
-      sx={{
+    <div
+      className="canvas-container"
+      style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        p: 2,
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 1,
-        backgroundColor: 'grey.100',
+        padding: '1.5rem',
+        background: 'var(--paper-white)',
+        border: '1px solid var(--ink-faint)',
       }}
     >
       <Stage
@@ -135,6 +133,9 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         ref={stageRef}
+        style={{
+          cursor: 'crosshair'
+        }}
       >
         <Layer>
           {img && (
@@ -154,10 +155,10 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
               width={area.width * scale}
               height={area.height * scale}
               fill={area.color}
-              opacity={0.3}
+              opacity={0.2}
               stroke={area.color}
               strokeWidth={2}
-              dash={[5, 5]}
+              dash={[6, 4]}
               onDblClick={handleRectDblClick}
             />
           ))}
@@ -168,14 +169,14 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
               y={currentRect.y}
               width={currentRect.width}
               height={currentRect.height}
-              fill="rgba(0, 123, 255, 0.3)"
-              stroke="primary"
+              fill="rgba(26, 22, 20, 0.1)"
+              stroke="var(--ink-black)"
               strokeWidth={2}
-              dash={[5, 5]}
+              dash={[6, 4]}
             />
           )}
         </Layer>
       </Stage>
-    </Box>
+    </div>
   );
 };
