@@ -96,12 +96,12 @@ export function MenuBar() {
 
   const helpMenuItems: MenuItem[] = [
     {
-      label: t('menu.discord'),
-      onSelect: () => openExternal('https://discord.gg/mHvHkxGnUY'),
+      label: t('menu.telegram'),
+      onSelect: () => openExternal('https://t.me/+yq6z7BZcZ84xODJi'),
     },
     {
       label: t('menu.github'),
-      onSelect: () => openExternal('https://github.com/mayocream/koharu'),
+      onSelect: () => openExternal('https://github.com/VladimirPozdnyakov/ocr'),
     },
   ]
 
@@ -109,13 +109,14 @@ export function MenuBar() {
     <div className='luxury-border luxury-shadow border-border bg-background text-foreground flex h-9 items-center border-b text-[13px]'>
       {/* Logo */}
       <div className='flex h-full items-center pl-3 select-none'>
-        <div className='luxury-border luxury-shadow bg-luxury-gold/10 hover:luxury-scale-subtle flex size-6 items-center justify-center rounded-sm transition-all duration-300'>
+        <div className='hover:luxury-scale-subtle flex size-6 items-center justify-center rounded-sm transition-all duration-300'>
           <Image
-            src='/icon.png'
-            alt='Koharu'
-            width={14}
-            height={14}
+            src='/logo.jpg'
+            alt='Lilith Team'
+            width={20}
+            height={20}
             draggable={false}
+            className='rounded-sm'
           />
         </div>
       </div>
@@ -125,7 +126,7 @@ export function MenuBar() {
         <MenubarMenu>
           <MenubarTrigger
             data-testid='menu-file-trigger'
-            className='luxury-border-subtle luxury-shadow hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'
+            className='hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'
           >
             {t('menu.file')}
           </MenubarTrigger>
@@ -152,19 +153,13 @@ export function MenuBar() {
                 {item.label}
               </MenubarItem>
             ))}
-            <MenubarSeparator />
-            <MenubarItem className='text-[13px]' asChild>
-              <Link href='/settings' prefetch={false}>
-                {t('menu.settings')}
-              </Link>
-            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         {menus.map(({ label, items, triggerTestId }) => (
           <MenubarMenu key={label}>
             <MenubarTrigger
               data-testid={triggerTestId}
-              className='luxury-border-subtle luxury-shadow hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'
+              className='hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'
             >
               {label}
             </MenubarTrigger>
@@ -195,7 +190,7 @@ export function MenuBar() {
           </MenubarMenu>
         ))}
         <MenubarMenu>
-          <MenubarTrigger className='luxury-border-subtle luxury-shadow hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'>
+          <MenubarTrigger className='hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'>
             {t('menu.help')}
           </MenubarTrigger>
           <MenubarContent
@@ -221,6 +216,11 @@ export function MenuBar() {
               </MenubarItem>
             ))}
             <MenubarSeparator />
+            <MenubarItem className='text-[13px]' asChild>
+              <Link href='/settings' prefetch={false}>
+                {t('menu.settings')}
+              </Link>
+            </MenubarItem>
             <MenubarItem className='text-[13px]' asChild>
               <Link href='/about' prefetch={false}>
                 {t('settings.about')}

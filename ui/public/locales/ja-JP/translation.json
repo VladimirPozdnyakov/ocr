@@ -22,7 +22,7 @@
     "processAll": "すべての画像を処理",
     "help": "ヘルプ",
     "settings": "設定",
-    "discord": "Discord",
+    "telegram": "Telegram",
     "github": "GitHub",
     "version": "バージョン: {{version}}",
     "versionUnknown": "バージョン: 不明",

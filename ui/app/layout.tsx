@@ -24,7 +24,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'Koharu',
+  title: 'Koharu (Lilith Team Edition)',
 }
 
 export const viewport: Viewport = {

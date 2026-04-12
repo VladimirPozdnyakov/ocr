@@ -22,7 +22,7 @@
     "processAll": "處理所有圖片",
     "help": "說明",
     "settings": "設定",
-    "discord": "Discord",
+    "telegram": "Telegram",
     "github": "GitHub",
     "version": "版本：{{version}}",
     "versionUnknown": "版本：未知",

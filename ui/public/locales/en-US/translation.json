@@ -22,7 +22,7 @@
     "processAll": "Process all images",
     "help": "Help",
     "settings": "Settings",
-    "discord": "Discord",
+    "telegram": "Telegram",
     "github": "GitHub",
     "version": "Version: {{version}}",
     "versionUnknown": "Version: Unknown",

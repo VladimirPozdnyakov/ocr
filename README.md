@@ -13,7 +13,7 @@ Koharu использует возможности машинного обуче
 
 ---
 
-![screenshot](assets/koharu-screenshot-en.png)
+![screenshot](assets/koharu-screenshot-ru.png)
 
 > [!NOTE]
 > Для помощи и поддержки присоединяйтесь к нашему [Telegram-каналу (переходник со всеми ссылками)](https://t.me/+yq6z7BZcZ84xODJi).

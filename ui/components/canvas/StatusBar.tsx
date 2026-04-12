@@ -23,7 +23,7 @@ export function StatusBar() {
           value={[scale]}
           onValueChange={(v) => setScale(v[0] ?? scale)}
         />
-        <div className='luxury-border luxury-shadow bg-luxury-navy text-luxury-gold rounded-sm px-2 py-0.5 font-mono text-[10px] font-medium tabular-nums'>
+        <div className='luxury-border luxury-shadow bg-luxury-gold text-background rounded-sm px-2 py-0.5 font-mono text-[10px] font-medium tabular-nums'>
           {scale}%
         </div>
       </div>

@@ -22,7 +22,7 @@
     "processAll": "Обработать все изображения",
     "help": "Справка",
     "settings": "Настройки",
-    "discord": "Discord",
+    "telegram": "Telegram",
     "github": "GitHub",
     "version": "Версия: {{version}}",
     "versionUnknown": "Версия: Неизвестно",

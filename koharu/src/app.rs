@@ -101,7 +101,7 @@ async fn build_resources(cpu: bool) -> Result<AppResources> {
                 warning(
                     "NVIDIA Driver Update Recommended",
                     &format!(
-                        "Your NVIDIA driver only supports CUDA {version}. Koharu will fall back to CPU. Please update your NVIDIA driver to a version that supports CUDA 13.1 or newer to enable GPU acceleration."
+                        "Your NVIDIA driver only supports CUDA {version}. Koharu (Lilith Team Edition) will fall back to CPU. Please update your NVIDIA driver to a version that supports CUDA 13.1 or newer to enable GPU acceleration."
                     ),
                 );
                 cpu = true;
@@ -110,7 +110,7 @@ async fn build_resources(cpu: bool) -> Result<AppResources> {
                 warning(
                     "NVIDIA Driver Check Failed",
                     &format!(
-                        "Koharu could not verify NVIDIA driver support for CUDA 13.1: {err:#}. Koharu will fall back to CPU. Please update your NVIDIA driver to a version that supports CUDA 13.1 or newer to enable GPU acceleration."
+                        "Koharu (Lilith Team Edition) could not verify NVIDIA driver support for CUDA 13.1: {err:#}. Will fall back to CPU. Please update your NVIDIA driver to a version that supports CUDA 13.1 or newer to enable GPU acceleration."
                     ),
                 );
                 cpu = true;
@@ -178,7 +178,7 @@ pub async fn run() -> Result<()> {
         .get_or_try_init(|| async { build_resources(cpu).await })
         .await?;
 
-    tracing::info!("Koharu is running at http://{local_addr}");
+    tracing::info!("Koharu (Lilith Team Edition) is running at http://{local_addr}");
     tracing::info!("Press Ctrl+C to stop");
 
     tokio::signal::ctrl_c().await?;

@@ -43,13 +43,13 @@ export function Navigator() {
     <div
       data-testid='navigator-panel'
       data-total-pages={totalPages}
-      className='luxury-border-subtle border-r bg-card flex h-full min-h-0 w-full flex-col '
+      className='luxury-border-subtle bg-card flex h-full min-h-0 w-full flex-col border-r'
     >
-      <div className='luxury-border-subtle border-b bg-luxury-gold/5 px-4 py-3'>
-        <p className='text-luxury-gold text-xs tracking-[0.2em] uppercase font-poppins font-semibold'>
+      <div className='luxury-border-subtle bg-luxury-gold/5 border-b px-4 py-3'>
+        <p className='text-luxury-gold font-poppins text-xs font-semibold tracking-[0.2em] uppercase'>
           {t('navigator.title')}
         </p>
-        <p className='text-foreground text-sm font-inter font-medium'>
+        <p className='text-foreground font-inter text-sm font-medium'>
           {totalPages
             ? t('navigator.pages', { count: totalPages })
             : t('navigator.empty')}
@@ -58,7 +58,7 @@ export function Navigator() {
 
       <div className='text-muted-foreground flex items-center gap-1.5 px-2 py-2 text-xs'>
         {totalPages > 0 ? (
-          <div className='luxury-border luxury-shadow bg-luxury-navy text-luxury-gold px-2 py-0.5 font-mono text-[10px] rounded-sm'>
+          <div className='luxury-border luxury-shadow bg-luxury-gold text-background rounded-sm px-2 py-0.5 font-mono text-[10px]'>
             #{currentDocumentIndex + 1}
           </div>
         ) : (
@@ -156,7 +156,7 @@ function PagePreview({
       className='luxury-border luxury-shadow bg-card data-[selected=true]:luxury-shadow-xl data-[selected=true]:bg-luxury-gold data-[selected=true]:text-background flex h-auto flex-col gap-2 rounded-sm border p-3 text-left transition-all duration-300 hover:shadow-lg'
     >
       {loading ? (
-        <div className='bg-muted luxury-lines aspect-3/4 w-full luxury-shimmer rounded-sm' />
+        <div className='bg-muted luxury-lines luxury-shimmer aspect-3/4 w-full rounded-sm' />
       ) : error ? (
         <div className='luxury-border bg-luxury-rose/10 flex aspect-3/4 w-full items-center justify-center rounded-sm'>
           <span className='text-luxury-rose font-poppins text-lg'>?</span>
@@ -174,7 +174,7 @@ function PagePreview({
         <div className='bg-muted luxury-dots aspect-3/4 w-full rounded-sm' />
       )}
       <div className='text-muted-foreground flex flex-1 items-center text-xs'>
-        <div className='luxury-border luxury-shadow bg-luxury-navy text-luxury-gold mx-auto flex size-6 items-center justify-center text-center font-poppins font-semibold rounded-full'>
+        <div className='luxury-border luxury-shadow bg-luxury-gold text-background font-poppins mx-auto flex size-6 items-center justify-center rounded-full text-center font-semibold'>
           {index + 1}
         </div>
       </div>

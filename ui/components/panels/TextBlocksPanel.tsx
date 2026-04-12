@@ -59,7 +59,7 @@ export function TextBlocksPanel() {
       {/* Luxury Editorial Header */}
       <div className='luxury-border-subtle bg-luxury-gold/10 border-b px-4 py-3'>
         <div className='flex items-center gap-2.5'>
-          <div className='luxury-border luxury-shadow bg-luxury-navy text-luxury-gold flex size-6 items-center justify-center rounded-full'>
+          <div className='luxury-border luxury-shadow bg-luxury-gold text-background flex size-6 items-center justify-center rounded-full'>
             <ActivityIcon className='size-3.5' />
           </div>
           <div className='flex-1'>
@@ -167,9 +167,9 @@ function BlockCard({
       }
     }
     return {
-      color: 'text-luxury-navy',
-      bg: 'bg-luxury-navy/10',
-      border: 'border-luxury-navy/30',
+      color: 'text-foreground',
+      bg: 'bg-muted/50',
+      border: 'border-border',
       icon: 'ML',
     }
   }

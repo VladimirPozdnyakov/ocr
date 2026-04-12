@@ -77,16 +77,18 @@ export default function AboutPage() {
             {/* App Info */}
             <div className='mb-8 flex flex-col items-center text-center'>
               <Image
-                src='/icon-large.png'
-                alt='Koharu'
+                src='/icon-large.jpg'
+                alt='Lilith Team'
                 width={96}
                 height={96}
-                className='mb-4'
+                className='mb-4 rounded-lg'
                 draggable={false}
               />
-              <h2 className='text-foreground mb-1 text-xl font-bold'>Koharu</h2>
+              <h2 className='text-foreground mb-1 text-xl font-bold'>
+                Koharu (Lilith Team Edition)
+              </h2>
               <p className='text-muted-foreground text-sm'>
-                Форк для команды Lilith Team
+                Форк Koharu для команды переводчиков манги Lilith Team
               </p>
             </div>
 
