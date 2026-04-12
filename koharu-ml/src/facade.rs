@@ -233,7 +233,29 @@ fn build_text_blocks(regions: &[LayoutRegion]) -> Vec<TextBlock> {
         .filter_map(layout_region_to_text_block)
         .collect::<Vec<_>>();
     dedupe_text_blocks(&mut blocks);
+    sort_text_blocks_right_to_left(&mut blocks);
     blocks
+}
+
+fn sort_text_blocks_right_to_left(blocks: &mut [TextBlock]) {
+    if blocks.len() < 2 {
+        return;
+    }
+
+    blocks.sort_by(|a, b| {
+        let a_center_y = a.y + a.height / 2.0;
+        let b_center_y = b.y + b.height / 2.0;
+        let a_center_x = a.x + a.width / 2.0;
+        let b_center_x = b.x + b.width / 2.0;
+
+        let row_tolerance = (a.width.min(a.height).max(b.width.min(b.height)) * 0.6).max(1.0);
+
+        if (a_center_y - b_center_y).abs() <= row_tolerance {
+            b_center_x.total_cmp(&a_center_x)
+        } else {
+            a_center_y.total_cmp(&b_center_y)
+        }
+    });
 }
 
 fn is_text_layout_label(label: &str) -> bool {
@@ -356,5 +378,19 @@ mod tests {
         let blocks = build_text_blocks(&[test_region(0, "text", [5.0, 5.0, 20.0, 60.0])]);
         assert_eq!(blocks.len(), 1);
         assert_eq!(blocks[0].source_direction, Some(TextDirection::Vertical));
+    }
+
+    #[test]
+    fn build_text_blocks_sorts_right_to_left() {
+        let blocks = build_text_blocks(&[
+            test_region(0, "text", [10.0, 10.0, 40.0, 40.0]),
+            test_region(1, "text", [60.0, 10.0, 90.0, 40.0]),
+            test_region(2, "text", [100.0, 50.0, 130.0, 80.0]),
+        ]);
+
+        assert_eq!(blocks.len(), 3);
+        assert_eq!(blocks[0].x, 60.0);
+        assert_eq!(blocks[1].x, 10.0);
+        assert_eq!(blocks[2].x, 100.0);
     }
 }

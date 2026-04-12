@@ -1,16 +1,16 @@
 use image::{
-    DynamicImage, GrayImage, Luma, Rgb, RgbImage,
     imageops::{self},
+    DynamicImage, GrayImage, Luma, Rgb, RgbImage,
 };
 use imageproc::{
-    contours::{BorderType as ContourBorderType, find_contours},
+    contours::{find_contours, BorderType as ContourBorderType},
     contrast::otsu_level,
     distance_transform::Norm,
     drawing::draw_polygon_mut,
-    geometric_transformations::{Interpolation, Projection, warp_into},
+    geometric_transformations::{warp_into, Interpolation, Projection},
     morphology::{dilate, erode},
     point::Point,
-    region_labelling::{Connectivity, connected_components},
+    region_labelling::{connected_components, Connectivity},
 };
 use koharu_types::{TextBlock, TextDirection};
 
@@ -751,7 +751,11 @@ fn contour_score_fast(image: &ScoreMap, polygon: &[[f32; 2]]) -> f32 {
         }
     }
 
-    if count <= 0.0 { 0.0 } else { sum / count }
+    if count <= 0.0 {
+        0.0
+    } else {
+        sum / count
+    }
 }
 
 fn group_output(
@@ -1179,12 +1183,7 @@ fn sort_regions(blocks: Vec<CtdBlock>) -> Vec<CtdBlock> {
         return blocks;
     }
 
-    let vertical_blocks = blocks
-        .iter()
-        .filter(|block| block.source_direction == TextDirection::Vertical)
-        .count();
-    let right_to_left = !blocks.is_empty() && vertical_blocks * 2 >= blocks.len();
-    let order = stable_reading_order_indices(&blocks, right_to_left);
+    let order = stable_reading_order_indices(&blocks, true);
     let mut ordered = Vec::with_capacity(blocks.len());
     let mut slots = blocks.into_iter().map(Some).collect::<Vec<_>>();
     for index in order {
@@ -2159,7 +2158,7 @@ mod tests {
     }
 
     #[test]
-    fn sort_regions_stays_stable_across_row_boundaries() {
+    fn sort_regions_orders_right_to_left() {
         let left_lower = test_block([0.0, 9.0, 2.0, 11.0], TextDirection::Horizontal);
         let middle = test_block([1.0, 4.0, 3.0, 6.0], TextDirection::Horizontal);
         let right_upper = test_block([2.0, -1.0, 4.0, 1.0], TextDirection::Horizontal);
@@ -2169,9 +2168,9 @@ mod tests {
         assert_eq!(
             bboxes,
             vec![
-                [0.0, 9.0, 2.0, 11.0],
-                [1.0, 4.0, 3.0, 6.0],
                 [2.0, -1.0, 4.0, 1.0],
+                [1.0, 4.0, 3.0, 6.0],
+                [0.0, 9.0, 2.0, 11.0],
             ]
         );
     }
