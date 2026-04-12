@@ -1,22 +1,19 @@
-# Auto Claude data directory
+# AI tools
+.claude/
 .auto-claude/
 .worktrees/
 
-# Node modules
+# Node
 node_modules/
 
-# Build outputs
-dist/
-dist-ssr/
-
-# Vite
-.vite/
+# Next.js
+.next/
+out/
 
 # Rust
-src-tauri/target/
+target/
 **/*.rs.bk
 *.pdb
-Cargo.lock
 
 # IDE
 .vscode/
@@ -24,7 +21,10 @@ Cargo.lock
 *.swp
 *.swo
 *~
+
+# OS
 .DS_Store
+Thumbs.db
 
 # Environment
 .env
@@ -38,18 +38,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# OS
-Thumbs.db
-.DS_Store
-
-# Temporary files
+# Temporary
 *.tmp
 *.bak
 
-# OCR Models (large files, should not be in git)
+# ML Models
 models/
 *.onnx
 *.pt
 *.pth
 *.bin
 *.safetensors
+
+# Reference
+_reference/
