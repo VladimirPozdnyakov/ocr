@@ -39,7 +39,7 @@ fn sample_document() -> Document {
                 y: 3.0,
                 width: 8.0,
                 height: 4.0,
-                translation: Some("HELLO".to_string()),
+                text: Some("HELLO".to_string()),
                 style: Some(TextStyle {
                     font_families: vec!["ArialMT".to_string()],
                     font_size: Some(14.0),
@@ -51,7 +51,6 @@ fn sample_document() -> Document {
                     stroke: Some(TextStrokeStyle::default()),
                     text_align: Some(TextAlign::Center),
                 }),
-                rendered: Some(rgba_image(8, 4, [255, 0, 0, 200])),
                 ..Default::default()
             },
             TextBlock {
@@ -60,7 +59,7 @@ fn sample_document() -> Document {
                 y: 1.0,
                 width: 3.0,
                 height: 8.0,
-                translation: Some("縦書き".to_string()),
+                text: Some("縦書き".to_string()),
                 source_direction: Some(TextDirection::Vertical),
                 font_prediction: Some(FontPrediction {
                     named_fonts: vec![NamedFontPrediction {
@@ -79,9 +78,6 @@ fn sample_document() -> Document {
             },
         ],
         segment: Some(gray_image(16, 12, 96)),
-        inpainted: Some(rgba_image(16, 12, [220, 220, 220, 255])),
-        rendered: Some(rgba_image(16, 12, [200, 210, 220, 255])),
-        brush_layer: Some(rgba_image(16, 12, [0, 255, 0, 100])),
     }
 }
 
@@ -107,7 +103,7 @@ fn exports_layered_psd_with_warning_free_raster_text_by_default() {
     assert_eq!(&bytes[18..22], &[0, 0, 0, 16]);
     assert_eq!(&bytes[22..24], &[0, 8]);
     assert_eq!(&bytes[24..26], &[0, 3]);
-    assert_eq!(layer_count(&bytes), -6);
+    assert_eq!(layer_count(&bytes), -4);
     assert_eq!(count_occurrences(&bytes, b"luni"), 0);
     assert_eq!(count_occurrences(&bytes, b"TySh"), 0);
     assert!(
@@ -146,7 +142,7 @@ fn parse_smoke_test_uses_reader_crate_for_basic_validation() {
 }
 
 #[test]
-fn empty_translations_are_skipped() {
+fn empty_text_is_skipped() {
     let mut document = sample_document();
     document.text_blocks.push(TextBlock {
         id: "block-empty".to_string(),
@@ -154,12 +150,12 @@ fn empty_translations_are_skipped() {
         y: 0.0,
         width: 4.0,
         height: 4.0,
-        translation: Some("   ".to_string()),
+        text: Some("   ".to_string()),
         ..Default::default()
     });
 
     let bytes = export_document(&document, &PsdExportOptions::default()).expect("export");
-    assert_eq!(layer_count(&bytes), -6);
+    assert_eq!(layer_count(&bytes), -4);
     assert_eq!(count_occurrences(&bytes, b"TySh"), 0);
     assert!(
         !bytes
@@ -184,9 +180,8 @@ fn dimensions_above_classic_psd_limit_fail() {
 }
 
 #[test]
-fn missing_rendered_text_bitmap_still_exports_editable_layer() {
-    let mut document = sample_document();
-    document.text_blocks[0].rendered = None;
+fn editable_layers_work_without_rendered_bitmap() {
+    let document = sample_document();
     let options = PsdExportOptions {
         text_layer_mode: TextLayerMode::Editable,
         ..Default::default()
@@ -194,21 +189,4 @@ fn missing_rendered_text_bitmap_still_exports_editable_layer() {
 
     let bytes = export_document(&document, &options).expect("export");
     assert_eq!(count_occurrences(&bytes, b"TySh"), 2);
-}
-
-#[test]
-fn optional_helper_layers_can_be_disabled() {
-    let document = sample_document();
-    let options = PsdExportOptions {
-        include_original: false,
-        include_inpainted: false,
-        include_segment_mask: false,
-        include_brush_layer: false,
-        text_layer_mode: TextLayerMode::Rasterized,
-    };
-
-    let bytes = export_document(&document, &options).expect("export");
-    assert_eq!(layer_count(&bytes), -2);
-    assert_eq!(count_occurrences(&bytes, b"luni"), 0);
-    assert_eq!(count_occurrences(&bytes, b"TySh"), 0);
 }

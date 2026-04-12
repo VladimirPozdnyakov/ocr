@@ -69,10 +69,6 @@ name = "comic-text-detector"
 path = "bin/comic-text-detector.rs"
 
 [[bin]]
-name = "lama"
-path = "bin/lama.rs"
-
-[[bin]]
 name = "manga-ocr"
 path = "bin/manga-ocr.rs"
 

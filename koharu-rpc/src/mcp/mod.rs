@@ -87,36 +87,6 @@ impl KoharuMcp {
         serde_json::to_string_pretty(&info).map_err(|e| e.to_string())
     }
 
-    /*
-    #[tool(description = "List available LLM translation models with supported languages")]
-    async fn llm_list(&self) -> Result<String, String> {
-        let res = self.resources()?;
-        let models = operations::llm_list(
-            res,
-            LlmListPayload {
-                language: None,
-                openai_compatible_base_url: None,
-            },
-        )
-        .await
-        .map_err(|e| e.to_string())?;
-        serde_json::to_string_pretty(&models).map_err(|e| e.to_string())
-    }
-
-    #[tool(description = "Check if an LLM model is loaded and ready")]
-    async fn llm_ready(&self) -> Result<String, String> {
-        let res = self.resources()?;
-        let ready = operations::llm_ready(res)
-            .await
-            .map_err(|e| e.to_string())?;
-        Ok(if ready {
-            "LLM is ready".to_string()
-        } else {
-            "LLM is not loaded".to_string()
-        })
-    }
-    */
-
     #[tool(
         description = "View a document image layer. Returns the image so you can see the manga page, detection mask."
     )]
@@ -295,70 +265,6 @@ impl KoharuMcp {
         }
         Ok(lines.join("\n"))
     }
-
-    /*
-    #[tool(
-        description = "Load an LLM translation model. This downloads and initializes the model."
-    )]
-    async fn llm_load(&self, Parameters(p): Parameters<LlmLoadParams>) -> Result<String, String> {
-        let res = self.resources()?;
-        operations::llm_load(
-            res,
-            LlmLoadPayload {
-                id: p.id.clone(),
-                api_key: None,
-                base_url: None,
-                temperature: p.temperature,
-                max_tokens: p.max_tokens,
-                custom_system_prompt: p.custom_system_prompt,
-            },
-        )
-        .await
-        .map_err(|e| e.to_string())?;
-        Ok(format!("Loading model '{}'...", p.id))
-    }
-
-    #[tool(description = "Unload the current LLM model from memory")]
-    async fn llm_offload(&self) -> Result<String, String> {
-        let res = self.resources()?;
-        operations::llm_offload(res)
-            .await
-            .map_err(|e| e.to_string())?;
-        Ok("LLM offloaded".to_string())
-    }
-
-    #[tool(
-        description = "Generate translations for text blocks using the loaded LLM. Returns the translated text."
-    )]
-    async fn llm_generate(
-        &self,
-        Parameters(p): Parameters<LlmGenerateParams>,
-    ) -> Result<String, String> {
-        let res = self.resources()?;
-        operations::llm_generate(
-            res.clone(),
-            LlmGeneratePayload {
-                index: p.index,
-                text_block_index: p.text_block_index,
-                language: p.language,
-            },
-        )
-        .await
-        .map_err(|e| e.to_string())?;
-
-        let doc = operations::get_document(res, IndexPayload { index: p.index })
-            .await
-            .map_err(|e| e.to_string())?;
-
-        let mut lines = vec!["Translations:".to_string()];
-        for (i, b) in doc.text_blocks.iter().enumerate() {
-            let src = b.text.as_deref().unwrap_or("?");
-            let tr = b.translation.as_deref().unwrap_or("(none)");
-            lines.push(format!("  [{i}] {src} -> {tr}"));
-        }
-        Ok(lines.join("\n"))
-    }
-    */
 
     #[tool(
         description = "Run the full processing pipeline: detect -> OCR. Processes all steps automatically."

@@ -12,9 +12,7 @@ let persistenceSetup = false
 
 const shouldPersistQueryKey = (queryKey: readonly unknown[]) => {
   const root = queryKey[0]
-  const second = queryKey[1]
   if (root === 'fonts') return true
-  if (root === 'llm' && second === 'models') return true
   return false
 }
 

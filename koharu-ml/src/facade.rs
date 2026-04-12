@@ -5,11 +5,10 @@ use std::{
 
 use anyhow::Result;
 use image::DynamicImage;
-use koharu_types::{Document, FontPrediction, SerializableDynamicImage, TextBlock, TextDirection};
+use koharu_types::{Document, FontPrediction, TextBlock, TextDirection};
 
 use crate::comic_text_detector::{self, ComicTextDetector, crop_text_block_bbox};
 use crate::font_detector::{self, FontDetector};
-use crate::lama::{self, Lama};
 use crate::paddleocr_vl::{self, PaddleOcrVl, PaddleOcrVlTask};
 use crate::pp_doclayout_v3::{self, LayoutRegion, PPDocLayoutV3};
 
@@ -83,7 +82,6 @@ pub struct Model {
     layout_detector: PPDocLayoutV3,
     segmenter: ComicTextDetector,
     ocr: Mutex<PaddleOcrVl>,
-    lama: Lama,
     font_detector: FontDetector,
 }
 
@@ -93,7 +91,6 @@ impl Model {
             layout_detector: PPDocLayoutV3::load(cpu).await?,
             segmenter: ComicTextDetector::load_segmentation_only(cpu).await?,
             ocr: Mutex::new(PaddleOcrVl::load(cpu).await?),
-            lama: Lama::load(cpu).await?,
             font_detector: FontDetector::load(cpu).await?,
         })
     }
@@ -196,16 +193,6 @@ impl Model {
         Ok(())
     }
 
-    pub async fn inpaint_raw(
-        &self,
-        image: &SerializableDynamicImage,
-        mask: &SerializableDynamicImage,
-        text_blocks: Option<&[koharu_types::TextBlock]>,
-    ) -> Result<SerializableDynamicImage> {
-        let result = self.lama.inference_with_blocks(image, mask, text_blocks)?;
-        Ok(result.into())
-    }
-
     pub async fn detect_font(&self, image: &DynamicImage, top_k: usize) -> Result<FontPrediction> {
         let mut results = self
             .detect_fonts(std::slice::from_ref(image), top_k)
@@ -234,7 +221,6 @@ pub async fn prefetch() -> Result<()> {
     pp_doclayout_v3::prefetch().await?;
     comic_text_detector::prefetch_segmentation().await?;
     paddleocr_vl::prefetch().await?;
-    lama::prefetch().await?;
     font_detector::prefetch().await?;
 
     Ok(())

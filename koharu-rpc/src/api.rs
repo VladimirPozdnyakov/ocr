@@ -428,107 +428,6 @@ async fn delete_text_block(
     Ok(StatusCode::NO_CONTENT)
 }
 
-/*
-async fn list_llm_models(
-    State(state): State<ApiState>,
-    Query(query): Query<LlmModelsQuery>,
-) -> ApiResult<Json<Vec<LlmModelInfo>>> {
-    let resources = state.resources()?;
-    let models = operations::llm_list(
-        resources,
-        koharu_types::LlmListPayload {
-            language: query.language,
-            openai_compatible_base_url: query.openai_compatible_base_url,
-        },
-    )
-    .await?
-    .into_iter()
-    .map(|model| LlmModelInfo {
-        id: model.id,
-        languages: model.languages,
-        source: model.source.to_string(),
-    })
-    .collect();
-    Ok(Json(models))
-}
-
-async fn get_llm_state(State(state): State<ApiState>) -> ApiResult<Json<koharu_types::LlmState>> {
-    let resources = state.resources()?;
-    Ok(Json(resources.llm.snapshot().await))
-}
-
-async fn load_llm(
-    State(state): State<ApiState>,
-    Json(request): Json<LlmLoadRequest>,
-) -> ApiResult<Json<koharu_types::LlmState>> {
-    let resources = state.resources()?;
-    operations::llm_load(
-        resources.clone(),
-        LlmLoadPayload {
-            id: request.id,
-            api_key: request.api_key,
-            base_url: request.base_url,
-            temperature: request.temperature,
-            max_tokens: request.max_tokens,
-            custom_system_prompt: request.custom_system_prompt,
-        },
-    )
-    .await?;
-    Ok(Json(resources.llm.snapshot().await))
-}
-
-async fn offload_llm(State(state): State<ApiState>) -> ApiResult<Json<koharu_types::LlmState>> {
-    let resources = state.resources()?;
-    operations::llm_offload(resources.clone()).await?;
-    Ok(Json(resources.llm.snapshot().await))
-}
-
-async fn ping_llm(Json(request): Json<LlmPingRequest>) -> ApiResult<Json<LlmPingResponse>> {
-    match operations::llm_ping(&request.base_url, request.api_key.as_deref()).await {
-        Ok(result) => Ok(Json(LlmPingResponse {
-            ok: true,
-            models: result.models,
-            latency_ms: Some(result.latency_ms),
-            error: None,
-        })),
-        Err(err) => Ok(Json(LlmPingResponse {
-            ok: false,
-            models: vec![],
-            latency_ms: None,
-            error: Some(err.to_string()),
-        })),
-    }
-}
-
-async fn get_api_key(
-    State(state): State<ApiState>,
-    Path(provider): Path<String>,
-) -> ApiResult<Json<ApiKeyResponse>> {
-    let resources = state.resources()?;
-    let result = operations::get_api_key(resources, ApiKeyGetPayload { provider }).await?;
-    Ok(Json(ApiKeyResponse {
-        api_key: result.api_key,
-    }))
-}
-
-async fn set_api_key(
-    State(state): State<ApiState>,
-    Path(provider): Path<String>,
-    Json(request): Json<ApiKeyValue>,
-) -> ApiResult<StatusCode> {
-    let resources = state.resources()?;
-    operations::set_api_key(
-        resources,
-        ApiKeySetPayload {
-            provider,
-            api_key: request.api_key,
-        },
-    )
-    .await?;
-    Ok(StatusCode::NO_CONTENT)
-}
-*/
-
 async fn start_pipeline_job(
     State(state): State<ApiState>,
     Json(request): Json<PipelineJobRequest>,
@@ -641,7 +540,6 @@ fn api_event_to_sse(event: ApiEvent) -> Option<Event> {
         ApiEvent::DocumentChanged(payload) => Some(sse_event("document.changed", &payload)),
         ApiEvent::JobChanged(payload) => Some(sse_event("job.changed", &payload)),
         ApiEvent::DownloadChanged(payload) => Some(sse_event("download.changed", &payload)),
-        // ApiEvent::LlmChanged(payload) => Some(sse_event("llm.changed", &payload)), // LLM functionality removed
     }
 }
 

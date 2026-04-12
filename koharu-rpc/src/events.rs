@@ -17,7 +17,6 @@ pub enum ApiEvent {
     DocumentChanged(DocumentChangedEvent),
     JobChanged(JobState),
     DownloadChanged(DownloadState),
-    // LlmChanged(LlmState), // LLM functionality removed
 }
 
 #[derive(Clone)]
@@ -44,7 +43,6 @@ impl EventHub {
         spawn_state_listener(inner.clone());
         spawn_pipeline_listener(inner.clone());
         spawn_download_listener(inner.clone());
-        // spawn_llm_listener(inner.clone()); // LLM functionality removed
 
         Self { inner }
     }
@@ -162,28 +160,6 @@ fn spawn_download_listener(inner: Arc<Inner>) {
         }
     });
 }
-
-/*
-fn spawn_llm_listener(inner: Arc<Inner>) {
-    tokio::spawn(async move {
-        let resources = loop {
-            if let Ok(resources) = get_resources(&inner.shared) {
-                break resources;
-            }
-            tokio::time::sleep(Duration::from_millis(100)).await;
-        };
-
-        let mut rx = resources.llm.subscribe();
-        loop {
-            match rx.recv().await {
-                Ok(state) => emit(&inner, ApiEvent::LlmChanged(state)),
-                Err(broadcast::error::RecvError::Lagged(_)) => continue,
-                Err(broadcast::error::RecvError::Closed) => break,
-            }
-        }
-    });
-}
-*/
 
 fn emit(inner: &Arc<Inner>, event: ApiEvent) {
     let _ = inner.tx.send(event);

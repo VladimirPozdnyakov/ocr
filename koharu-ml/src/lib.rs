@@ -3,7 +3,6 @@ mod hf_hub;
 pub mod comic_text_detector;
 pub mod facade;
 pub mod font_detector;
-pub mod lama;
 pub mod loading;
 pub mod manga_ocr;
 pub mod manga_text_segmentation_2025;

@@ -1,10 +1,6 @@
 'use client'
 
-export type OperationType =
-  | 'load-khr'
-  | 'process-current'
-  | 'process-all'
-  | 'llm-load'
+export type OperationType = 'load-khr' | 'process-current' | 'process-all'
 
 export type OperationState = {
   type: OperationType

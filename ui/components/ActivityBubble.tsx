@@ -147,13 +147,10 @@ function OperationCard({
     'load-khr': t('operations.loadKhr'),
     'process-current': t('operations.processCurrent'),
     'process-all': t('operations.processAll'),
-    'llm-load': t('operations.loadModel'),
   }
   const stepLabels: Record<string, string> = {
     detect: t('processing.detect'),
     ocr: t('processing.ocr'),
-    inpaint: t('mask.inpaint'),
-    llmGenerate: t('llm.generate'),
     render: t('processing.render'),
   }
 

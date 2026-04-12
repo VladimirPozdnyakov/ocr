@@ -24,7 +24,6 @@ pub enum TextLayerMode {
 #[derive(Debug, Clone)]
 pub struct PsdExportOptions {
     pub include_original: bool,
-    pub include_inpainted: bool,
     pub include_segment_mask: bool,
     pub include_brush_layer: bool,
     pub text_layer_mode: TextLayerMode,
@@ -34,7 +33,6 @@ impl Default for PsdExportOptions {
     fn default() -> Self {
         Self {
             include_original: true,
-            include_inpainted: true,
             include_segment_mask: true,
             include_brush_layer: true,
             text_layer_mode: TextLayerMode::Rasterized,
@@ -731,7 +729,7 @@ mod tests {
         let tall_english_block = TextBlock {
             width: 40.0,
             height: 120.0,
-            translation: Some("HELLO".to_string()),
+            text: Some("HELLO".to_string()),
             ..Default::default()
         };
         assert_eq!(
