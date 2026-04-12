@@ -31,5 +31,6 @@ tracing-subscriber = { workspace = true }
 windows = { workspace = true }
 
 [features]
+default = ["cuda"]
 cuda = ["koharu-ml/cuda"]
 metal = ["koharu-ml/metal"]
