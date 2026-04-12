@@ -49,6 +49,12 @@ struct Cli {
         default_value = "127.0.0.1"
     )]
     host: String,
+    #[arg(
+        long,
+        help = "Do not open browser automatically",
+        default_value_t = false
+    )]
+    no_browser: bool,
 }
 
 fn initialize() -> Result<()> {
@@ -150,6 +156,7 @@ pub async fn run() -> Result<()> {
         cpu,
         port,
         host,
+        no_browser,
     } = Cli::parse();
 
     initialize()?;
@@ -178,11 +185,43 @@ pub async fn run() -> Result<()> {
         .get_or_try_init(|| async { build_resources(cpu).await })
         .await?;
 
-    tracing::info!("Koharu (Lilith Team Edition) is running at http://{local_addr}");
+    let url = format!("http://{local_addr}");
+    tracing::info!("Koharu (Lilith Team Edition) is running at {url}");
     tracing::info!("Press Ctrl+C to stop");
+
+    if !no_browser {
+        if let Err(err) = open_browser(&url) {
+            tracing::warn!("Failed to open browser: {err:#}");
+        }
+    }
 
     tokio::signal::ctrl_c().await?;
 
     tracing::info!("Shutting down...");
+    Ok(())
+}
+
+fn open_browser(url: &str) -> Result<()> {
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("cmd")
+            .args(["/C", "start", url])
+            .spawn()?;
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg(url)
+            .spawn()?;
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        std::process::Command::new("xdg-open")
+            .arg(url)
+            .spawn()?;
+    }
+
     Ok(())
 }
