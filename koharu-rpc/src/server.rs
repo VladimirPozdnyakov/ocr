@@ -7,15 +7,11 @@ use axum::{
     http::{HeaderValue, StatusCode, Uri, header},
     response::{IntoResponse, Response},
 };
-use rmcp::transport::streamable_http_server::{
-    StreamableHttpService, session::local::LocalSessionManager, tower::StreamableHttpServerConfig,
-};
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 
 use crate::api;
 use crate::events::EventHub;
-use crate::mcp::KoharuMcp;
 use crate::shared::SharedResources;
 
 /// An asset returned by the resolver: raw bytes + MIME type.
@@ -39,21 +35,8 @@ fn build_router(shared: SharedResources, resolver: SharedAssetResolver) -> Route
     let events = EventHub::new(shared.clone());
     let cors = CorsLayer::very_permissive();
 
-    let mcp_service = StreamableHttpService::new(
-        {
-            let shared = shared.clone();
-            move || Ok(KoharuMcp::new(shared.clone()))
-        },
-        LocalSessionManager::default().into(),
-        StreamableHttpServerConfig {
-            sse_retry: None,
-            ..Default::default()
-        },
-    );
-
     Router::new()
         .nest("/api/v1", api::router(shared.clone(), events))
-        .nest_service("/mcp", mcp_service)
         .layer(cors)
         .fallback(move |uri: Uri| {
             let resolver = resolver.clone();

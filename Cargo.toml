@@ -106,10 +106,6 @@ axum = { version = "0.8", features = ["multipart", "ws"] }
 async-stream = "0.3"
 rmp-serde = "1"
 rmpv = { version = "1", features = ["with-serde"] }
-rmcp = { version = "0.16", features = [
-    "server",
-    "transport-streamable-http-server",
-] }
 schemars = "1.2"
 ts-rs = { version = "12.0", features = ["serde-json-impl"] }
 uuid = { version = "1.18", features = ["v4", "serde"] }

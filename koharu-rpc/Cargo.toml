@@ -23,7 +23,6 @@ base64 = { workspace = true }
 futures = { workspace = true }
 image = { workspace = true }
 imageproc = { workspace = true }
-rmcp = { workspace = true }
 rmp-serde = { workspace = true }
 rmpv = { workspace = true }
 serde = { workspace = true }
