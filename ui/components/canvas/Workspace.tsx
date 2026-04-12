@@ -267,7 +267,7 @@ export function Workspace() {
                     <div
                       ref={canvasRef}
                       data-testid='workspace-canvas'
-                      className='luxury-border-subtle luxury-shadow-xl border-border bg-card relative rounded-sm border transition-all duration-300'
+                      className='luxury-border-subtle luxury-shadow-xl border-border bg-card relative rounded-sm border'
                       style={{ ...canvasDimensions, cursor: canvasCursor }}
                       onPointerDownCapture={handleCanvasPointerDownCapture}
                       onContextMenuCapture={handleCanvasContextMenu}

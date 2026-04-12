@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Rnd, type RndResizeCallback, type RndDragCallback } from 'react-rnd'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
@@ -85,6 +85,11 @@ function TextBlockAnnotation({
   const scale = useEditorUiStore((state) => state.scale)
   const scaleRatio = scale / 100
 
+  const [isDragging, setIsDragging] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [resizeSize, setResizeSize] = useState({ width: 0, height: 0 })
+
   const scaledSize = {
     width: Math.max(0, block.width * scaleRatio),
     height: Math.max(0, block.height * scaleRatio),
@@ -95,55 +100,74 @@ function TextBlockAnnotation({
     y: block.y * scaleRatio,
   }
 
-  const [size, setSize] = useState(scaledSize)
-  const [position, setPosition] = useState(scaledPosition)
-
-  useEffect(() => {
-    setSize(scaledSize)
-    setPosition(scaledPosition)
-  }, [scaledPosition.x, scaledPosition.y, scaledSize.width, scaledSize.height])
-
-  const handleDrag: RndDragCallback = (_, data) => {
+  const handleDragStart: RndDragCallback = useCallback(() => {
     if (!interactive) return
-    setPosition({ x: data.x, y: data.y })
-  }
+    setIsDragging(true)
+    onSelect(index)
+  }, [interactive, index, onSelect])
 
-  const handleDragStop: RndDragCallback = (_, data) => {
-    if (!interactive) return
-    const nextPosition = { x: data.x, y: data.y }
-    setPosition(nextPosition)
-    onUpdate({
-      x: Math.round(nextPosition.x / scaleRatio),
-      y: Math.round(nextPosition.y / scaleRatio),
-    })
-  }
+  const handleDrag: RndDragCallback = useCallback(
+    (_, data) => {
+      if (!interactive) return
+      const offsetX = data.x - scaledPosition.x
+      const offsetY = data.y - scaledPosition.y
+      setDragOffset({ x: offsetX, y: offsetY })
+    },
+    [interactive, scaledPosition.x, scaledPosition.y],
+  )
 
-  const handleResize: RndResizeCallback = (_, __, ref, ___, nextPosition) => {
+  const handleDragStop: RndDragCallback = useCallback(
+    (_, data) => {
+      if (!interactive) return
+      setIsDragging(false)
+      setDragOffset({ x: 0, y: 0 })
+      onUpdate({
+        x: Math.round(data.x / scaleRatio),
+        y: Math.round(data.y / scaleRatio),
+      })
+    },
+    [interactive, scaleRatio, onUpdate],
+  )
+
+  const handleResizeStart = useCallback(() => {
     if (!interactive || !selected) return
-    setSize({
-      width: parseFloat(ref.style.width),
-      height: parseFloat(ref.style.height),
-    })
-    setPosition(nextPosition)
-  }
+    setIsResizing(true)
+    onSelect(index)
+  }, [interactive, selected, index, onSelect])
 
-  const handleResizeStop: RndResizeCallback = (_, __, ref, ___, position) => {
-    if (!interactive || !selected) return
-    const widthPx = parseFloat(ref.style.width)
-    const heightPx = parseFloat(ref.style.height)
-    const nextSize = {
-      width: widthPx,
-      height: heightPx,
-    }
-    setSize(nextSize)
-    setPosition(position)
-    onUpdate({
-      x: Math.round(position.x / scaleRatio),
-      y: Math.round(position.y / scaleRatio),
-      width: Math.max(4, Math.round(nextSize.width / scaleRatio)),
-      height: Math.max(4, Math.round(nextSize.height / scaleRatio)),
-    })
-  }
+  const handleResize: RndResizeCallback = useCallback(
+    (_, __, ref) => {
+      if (!interactive || !selected) return
+      setResizeSize({
+        width: parseFloat(ref.style.width),
+        height: parseFloat(ref.style.height),
+      })
+    },
+    [interactive, selected],
+  )
+
+  const handleResizeStop: RndResizeCallback = useCallback(
+    (_, __, ref, ___, position) => {
+      if (!interactive || !selected) return
+      setIsResizing(false)
+      setResizeSize({ width: 0, height: 0 })
+      const widthPx = parseFloat(ref.style.width)
+      const heightPx = parseFloat(ref.style.height)
+      onUpdate({
+        x: Math.round(position.x / scaleRatio),
+        y: Math.round(position.y / scaleRatio),
+        width: Math.max(4, Math.round(widthPx / scaleRatio)),
+        height: Math.max(4, Math.round(heightPx / scaleRatio)),
+      })
+    },
+    [interactive, selected, scaleRatio, onUpdate],
+  )
+
+  const position = isDragging
+    ? { x: scaledPosition.x + dragOffset.x, y: scaledPosition.y + dragOffset.y }
+    : scaledPosition
+
+  const size = isResizing ? resizeSize : scaledSize
 
   return (
     <Rnd
@@ -165,16 +189,10 @@ function TextBlockAnnotation({
             }
           : false
       }
-      onDragStart={() => {
-        if (!interactive) return
-        onSelect(index)
-      }}
+      onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragStop={handleDragStop}
-      onResizeStart={() => {
-        if (!interactive) return
-        onSelect(index)
-      }}
+      onResizeStart={handleResizeStart}
       onResize={handleResize}
       onResizeStop={handleResizeStop}
       onMouseDown={(event) => {
