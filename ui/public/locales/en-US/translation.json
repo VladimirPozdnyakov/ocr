@@ -10,15 +10,11 @@
     "addFolder": "Add Folder...",
     "save": "Save...",
     "export": "Export...",
-    "exportPsd": "Export PSD...",
-    "exportAllInpainted": "Export All Inpainted...",
-    "exportAllRendered": "Export All Rendered...",
     "view": "View",
     "fitWindow": "Fit Window",
     "originalSize": "Original Size",
     "process": "Process",
     "processCurrent": "Process current image",
-    "redoInpaintRender": "Redo inpaint and render",
     "processAll": "Process all images",
     "help": "Help",
     "settings": "Settings",
@@ -29,11 +25,7 @@
     "language": "Language",
     "languages": {
       "en-US": "English",
-      "zh-CN": "简体中文",
-      "zh-TW": "繁體中文",
-      "ja-JP": "日本語",
-      "ru-RU": "Русский",
-      "es-ES": "Español"
+      "ru-RU": "Русский"
     }
   },
   "operations": {
@@ -41,11 +33,9 @@
     "inProgress": "Please wait while we finish up.",
     "loadKhr": "Loading project",
     "saveKhr": "Saving project",
-    "loadModel": "Loading ML model",
     "processCurrent": "Processing current image",
     "processAll": "Processing all images",
     "imageProgress": "Image {{current}} / {{total}}",
-    "stepProgress": "Step {{current}} / {{total}}: {{step}}",
     "cancel": "Stop",
     "cancelling": "Stopping..."
   },
@@ -56,53 +46,11 @@
     "empty": "No documents",
     "prompt": "Select or import a page to begin"
   },
-  "panels": {
-    "processing": "Processing",
-    "mask": "Mask",
-    "render": "Render"
-  },
-  "layers": {
-    "title": "Layers",
-    "rendered": "Rendered Text",
-    "textBlocks": "Text Blocks",
-    "brush": "Brush Layer",
-    "inpainted": "Inpainted",
-    "mask": "Segmentation Mask",
-    "base": "Original Image"
-  },
   "processing": {
     "detect": "Detect",
     "detectTooltip": "Run text detection on current page",
     "ocr": "OCR",
-    "ocrTooltip": "Recognize text for detected regions",
-    "render": "Render"
-  },
-  "mask": {
-    "showSegmentationMask": "Show segmentation mask",
-    "showInpainted": "Show inpainted image",
-    "showBrushLayer": "Show brush layer",
-    "showRendered": "Show rendered text",
-    "showTextBlocks": "Show text blocks",
-    "inpaint": "Inpaint",
-    "inpaintTooltip": "Apply inpainting"
-  },
-  "render": {
-    "effectLabel": "Text effect",
-    "alignLabel": "Align",
-    "alignLeft": "Align left",
-    "alignCenter": "Align center",
-    "alignRight": "Align right",
-    "effectItalic": "Italic",
-    "effectBold": "Bold",
-    "effectBorder": "Border",
-    "strokeColorLabel": "Stroke color",
-    "strokeWidthLabel": "Stroke width",
-    "fontLabel": "Font",
-    "fontPlaceholder": "Select font",
-    "fontColorLabel": "Font color",
-    "fontScopeGlobal": "Global",
-    "fontScopeBlock": "Per block",
-    "fontScopeBlockIndex": "Block {{index}}"
+    "ocrTooltip": "Recognize text for detected regions"
   },
   "textBlocks": {
     "emptyPrompt": "Open an image to see text blocks.",
@@ -121,38 +69,13 @@
     "zoom": "Zoom",
     "canvas": "Canvas"
   },
-  "toolbar": {
-    "brush": "Brush",
-    "eraser": "Eraser",
-    "brushSize": "Brush size",
-    "brushColor": "Brush color"
-  },
   "toolRail": {
     "select": "Select",
-    "block": "Block",
-    "brush": "Brush",
-    "repairBrush": "Repair brush",
-    "eraser": "Eraser"
-  },
-  "download": {
-    "title": "Downloading"
+    "block": "Block"
   },
   "errors": {
     "title": "Error",
-    "dismiss": "Dismiss",
-    "providerQuotaExceeded": "{{provider}} API quota exceeded. Check your billing or wait for your quota to reset.",
-    "providerApiKeyRequired": "{{provider}} API key is required.",
-    "providerBaseUrlRequired": "{{provider}} Base URL is required.",
-    "providerNoContent": "{{provider}} returned no content.",
-    "providerRequestFailed": "{{provider}} API request failed ({{status}}): {{details}}"
-  },
-  "providers": {
-    "openai": "OpenAI",
-    "openaiCompatible": "OpenAI Compatible",
-    "gemini": "Gemini",
-    "claude": "Claude",
-    "deepseek": "DeepSeek",
-    "unknown": "Provider"
+    "dismiss": "Dismiss"
   },
   "settings": {
     "title": "Settings",

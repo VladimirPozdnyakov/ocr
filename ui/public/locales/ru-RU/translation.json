@@ -10,15 +10,11 @@
     "addFolder": "Добавить папку...",
     "save": "Сохранить...",
     "export": "Экспортировать...",
-    "exportPsd": "Экспортировать PSD...",
-    "exportAllInpainted": "Экспортировать все изображения после инпейнтинга...",
-    "exportAllRendered": "Экспортировать все отрендеренные изображения...",
     "view": "Вид",
     "fitWindow": "По размеру окна",
     "originalSize": "Исходный размер",
     "process": "Обработка",
     "processCurrent": "Обработать текущее изображение",
-    "redoInpaintRender": "Повторить инпейнтинг и рендер",
     "processAll": "Обработать все изображения",
     "help": "Справка",
     "settings": "Настройки",
@@ -29,11 +25,7 @@
     "language": "Язык",
     "languages": {
       "en-US": "Английский",
-      "zh-CN": "Китайский (упр.)",
-      "zh-TW": "Китайский (трад.)",
-      "ja-JP": "Японский",
-      "ru-RU": "Русский",
-      "es-ES": "Испанский"
+      "ru-RU": "Русский"
     }
   },
   "operations": {
@@ -41,11 +33,9 @@
     "inProgress": "Подождите, пока мы закончим.",
     "loadKhr": "Загрузка проекта",
     "saveKhr": "Сохранение проекта",
-    "loadModel": "Загрузка LLM модели",
     "processCurrent": "Обработка текущего изображения",
     "processAll": "Обработка всех изображений",
     "imageProgress": "Изображение {{current}} / {{total}}",
-    "stepProgress": "Шаг {{current}} / {{total}}: {{step}}",
     "cancel": "Остановить",
     "cancelling": "Остановка..."
   },
@@ -56,119 +46,11 @@
     "empty": "Нет документов",
     "prompt": "Выберите или импортируйте страницу для начала"
   },
-  "panels": {
-    "processing": "Обработка",
-    "mask": "Маска",
-    "llm": "LLM",
-    "render": "Рендер"
-  },
-  "layers": {
-    "title": "Слои",
-    "rendered": "Отрендеренный текст",
-    "textBlocks": "Текстовые блоки",
-    "brush": "Слой кисти",
-    "inpainted": "Инпейнтинг",
-    "mask": "Маска сегментации",
-    "base": "Исходное изображение"
-  },
   "processing": {
     "detect": "Детекция",
     "detectTooltip": "Запустить детекцию текста на текущей странице",
     "ocr": "OCR",
-    "ocrTooltip": "Распознать текст в обнаруженных областях",
-    "render": "Рендер"
-  },
-  "mask": {
-    "showSegmentationMask": "Показать маску сегментации",
-    "showInpainted": "Показать изображение после инпейнтинга",
-    "showBrushLayer": "Показать слой кисти",
-    "showRendered": "Показать отрендеренный текст",
-    "showTextBlocks": "Показать текстовые блоки",
-    "inpaint": "Инпейнтинг",
-    "inpaintTooltip": "Применить инпейнтинг"
-  },
-  "llm": {
-    "title": "LLM",
-    "ready": "Готова",
-    "idle": "Неактивна",
-    "selectPlaceholder": "Выберите модель",
-    "modelLabel": "Модель",
-    "languageLabel": "Язык перевода",
-    "languagePlaceholder": "Выберите язык",
-    "load": "Загрузить",
-    "unload": "Выгрузить",
-    "loadTooltip": "Загрузить выбранную модель",
-    "unloadTooltip": "Выгрузить модель",
-    "generate": "Генерировать",
-    "generating": "Генерация...",
-    "generateTooltip": "Сгенерировать перевод для обнаруженных текстовых блоков",
-    "render": "Рендер",
-    "renderTooltip": "Отрендерить перевод на странице",
-    "apiKeyMissing": "Требуется API-ключ для {{provider}}.",
-    "localModelActive": "Локальная модель активна",
-    "localModelName": "Модель: {{name}}",
-    "loadingModel": "Загрузка LLM модели",
-    "statusReady": "LLM готова",
-    "statusIdle": "LLM не загружена",
-    "languages": {
-      "en-US": "Американский английский",
-      "zh-CN": "Китайский (Китай)",
-      "zh-TW": "Китайский (Тайвань)",
-      "ja-JP": "Японский (Япония)",
-      "ru-RU": "Русский (Россия)",
-      "es-ES": "Европейский испанский",
-      "fr-FR": "Французский (Франция)",
-      "pt-PT": "Европейский португальский",
-      "tr-TR": "Турецкий (Турция)",
-      "ar-SA": "Арабский (Саудовская Аравия)",
-      "ko-KR": "Корейский (Республика Корея)",
-      "th-TH": "Тайский (Таиланд)",
-      "it-IT": "Итальянский (Италия)",
-      "de-DE": "Немецкий (Германия)",
-      "vi-VN": "Вьетнамский (Вьетнам)",
-      "ms-MY": "Малайский (Малайзия)",
-      "id-ID": "Индонезийский (Индонезия)",
-      "fil-PH": "Филиппинский (Филиппины)",
-      "hi-IN": "Хинди (Индия)",
-      "pl-PL": "Польский (Польша)",
-      "cs-CZ": "Чешский (Чехия)",
-      "nl-NL": "Нидерландский (Нидерланды)",
-      "km-KH": "Кхмерский (Камбоджа)",
-      "my-MM": "Бирманский (Мьянма [Бирма])",
-      "fa-IR": "Персидский (Иран)",
-      "gu-IN": "Гуджарати (Индия)",
-      "ur-PK": "Урду (Пакистан)",
-      "te-IN": "Телугу (Индия)",
-      "mr-IN": "Маратхи (Индия)",
-      "he-IL": "Иврит (Израиль)",
-      "bn-BD": "Бенгальский (Бангладеш)",
-      "bg-BG": "Болгарский (Болгария)",
-      "ta-IN": "Тамильский (Индия)",
-      "uk-UA": "Украинский (Украина)",
-      "bo-CN": "Тибетский (Китай)",
-      "kk-KZ": "Казахский (Казахстан)",
-      "mn-MN": "Монгольский (Монголия)",
-      "ug-CN": "Уйгурский (Китай)",
-      "yue-HK": "Кантонский (Гонконг [САР])"
-    }
-  },
-  "render": {
-    "effectLabel": "Эффект текста",
-    "alignLabel": "Выравнивание",
-    "alignLeft": "По левому краю",
-    "alignCenter": "По центру",
-    "alignRight": "По правому краю",
-    "fontLabel": "Шрифт",
-    "fontPlaceholder": "Выберите шрифт",
-    "fontColorLabel": "Цвет шрифта",
-    "fontScopeGlobal": "Глобально",
-    "fontScopeBlock": "Для блока",
-    "fontScopeBlockIndex": "Блок {{index}}",
-    "effectItalic": "Курсив",
-    "effectBold": "Жирный",
-    "effectBorder": "Обводка",
-    "strokeColorLabel": "Цвет обводки",
-    "strokeWidthLabel": "Толщина обводки"
+    "ocrTooltip": "Распознать текст в обнаруженных областях"
   },
   "textBlocks": {
     "emptyPrompt": "Откройте изображение, чтобы увидеть текстовые блоки.",
@@ -177,10 +59,7 @@
     "emptySummary": "<пусто>",
     "ocrLabel": "Текст OCR",
     "ocrBadge": "OCR",
-    "translationLabel": "Перевод",
-    "translationBadge": "Пер.",
-    "addOcrPlaceholder": "Добавить текст OCR",
-    "addTranslationPlaceholder": "Добавить перевод"
+    "addOcrPlaceholder": "Добавить текст OCR"
   },
   "workspace": {
     "importPrompt": "Импортируйте страницу, чтобы начать редактирование.",
@@ -190,38 +69,13 @@
     "zoom": "Масштаб",
     "canvas": "Холст"
   },
-  "toolbar": {
-    "brush": "Кисть",
-    "eraser": "Ластик",
-    "brushSize": "Размер кисти",
-    "brushColor": "Цвет кисти"
-  },
   "toolRail": {
     "select": "Выделение",
-    "block": "Блок",
-    "brush": "Кисть",
-    "repairBrush": "Кисть восстановления",
-    "eraser": "Ластик"
-  },
-  "download": {
-    "title": "Загрузка"
+    "block": "Блок"
   },
   "errors": {
     "title": "Ошибка",
-    "dismiss": "Закрыть",
-    "providerQuotaExceeded": "Квота API для {{provider}} исчерпана. Проверьте биллинг или дождитесь сброса квоты.",
-    "providerApiKeyRequired": "Требуется API-ключ для {{provider}}.",
-    "providerBaseUrlRequired": "Требуется Base URL для {{provider}}.",
-    "providerNoContent": "{{provider}} не вернул контент.",
-    "providerRequestFailed": "Запрос API к {{provider}} завершился ошибкой ({{status}}): {{details}}"
-  },
-  "providers": {
-    "openai": "OpenAI",
-    "openaiCompatible": "Совместимый с OpenAI",
-    "gemini": "Gemini",
-    "claude": "Claude",
-    "deepseek": "DeepSeek",
-    "unknown": "Провайдер"
+    "dismiss": "Закрыть"
   },
   "settings": {
     "title": "Настройки",
@@ -244,32 +98,6 @@
     "aboutRepository": "Репозиторий",
     "device": "Устройство",
     "deviceDescription": "Информация об аппаратном ускорении.",
-    "deviceMl": "ML Compute",
-    "apiKeys": "API ключи",
-    "apiKeysDescription": "Управляйте своими API ключами для различных провайдеров. Ваши ключи надежно хранятся в связке ключей вашего устройства и никогда не передаются другим лицам.",
-    "freeTier": "Бесплатный уровень",
-    "localLlm": "Локальная LLM",
-    "localLlmDescription": "Подключитесь к локальному серверу LLM (Ollama, LM Studio или любой OpenAI-совместимый эндпоинт) для перевода.",
-    "localLlmPreset": "Провайдер",
-    "localLlmPresetOllama": "Ollama",
-    "localLlmPresetLmStudio": "LM Studio",
-    "localLlmPresetCustom": "Другой",
-    "localLlmBaseUrl": "Base URL",
-    "localLlmApiKey": "API ключ (необязательно)",
-    "localLlmModelName": "Имя модели",
-    "localLlmModelNamePlaceholder": "напр. qwen2.5:7b, llama3.2:3b",
-    "localLlmTargetLanguage": "Язык перевода",
-    "localLlmTemperature": "Температура",
-    "localLlmTemperaturePlaceholder": "0.1 (по умолчанию)",
-    "localLlmMaxTokens": "Макс. токенов",
-    "localLlmMaxTokensPlaceholder": "1000 (по умолчанию)",
-    "localLlmSystemPrompt": "Системный промт",
-    "localLlmSystemPromptPlaceholder": "Оставьте пустым для использования стандартного промта перевода манги",
-    "localLlmSystemPromptReset": "Сбросить",
-    "localLlmTestConnection": "Проверить подключение",
-    "localLlmTesting": "Проверка...",
-    "localLlmTestSuccess": "Подключено. Найдено моделей: {{count}}. Задержка: {{latency}}мс",
-    "localLlmTestFailed": "Ошибка подключения: {{error}}",
-    "localLlmAdvanced": "Расширенные настройки"
+    "deviceMl": "ML Compute"
   }
 }
