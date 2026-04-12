@@ -1,6 +1,6 @@
 # Koharu (Lilith Edition)
 
-Форк Koharu для команды [Lilith Team](https://t.me/+yq6z7BZcZ84xODJi)
+Форк [Koharu](https://github.com/mayocream/koharu) для команды [Lilith Team](https://t.me/+yq6z7BZcZ84xODJi)
 
 OCR-приложение для манги, написанное на **Rust**.
 
