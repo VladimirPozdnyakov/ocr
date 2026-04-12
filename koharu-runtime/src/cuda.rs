@@ -173,33 +173,42 @@ fn source_id() -> Result<String> {
 }
 
 pub(crate) async fn ensure_ready(root: &Path, downloads_dir: &Path) -> Result<()> {
-    let install_dir = root.join("cuda");
-    let source_id = source_id()?;
-
-    if !crate::is_up_to_date(&install_dir, &source_id) {
-        crate::reset_dir(&install_dir)?;
-
-        let tags = platform_tags()?;
-        for wheel in WHEELS {
-            let (url, filename) = select_wheel(wheel.name, tags).await?;
-            let archive = archive::download_cached(&url, &filename, downloads_dir).await?;
-            archive::extract_zip_selected(&archive, &install_dir, wheel.dylibs())?;
-        }
-
-        crate::mark_installed(&install_dir, &source_id)?;
+    #[cfg(target_os = "linux")]
+    {
+        let _ = (root, downloads_dir);
+        return Ok(());
     }
 
-    add_runtime_search_path(&install_dir)?;
-    for wheel in WHEELS {
-        for dylib in wheel.dylibs() {
-            let path = install_dir.join(dylib);
-            if path.exists() {
-                preload_library(&path)?;
+    #[cfg(not(target_os = "linux"))]
+    {
+        let install_dir = root.join("cuda");
+        let source_id = source_id()?;
+
+        if !crate::is_up_to_date(&install_dir, &source_id) {
+            crate::reset_dir(&install_dir)?;
+
+            let tags = platform_tags()?;
+            for wheel in WHEELS {
+                let (url, filename) = select_wheel(wheel.name, tags).await?;
+                let archive = archive::download_cached(&url, &filename, downloads_dir).await?;
+                archive::extract_zip_selected(&archive, &install_dir, wheel.dylibs())?;
+            }
+
+            crate::mark_installed(&install_dir, &source_id)?;
+        }
+
+        add_runtime_search_path(&install_dir)?;
+        for wheel in WHEELS {
+            for dylib in wheel.dylibs() {
+                let path = install_dir.join(dylib);
+                if path.exists() {
+                    preload_library(&path)?;
+                }
             }
         }
-    }
 
-    Ok(())
+        Ok(())
+    }
 }
 
 async fn select_wheel(package: &str, tags: &[&str]) -> Result<(String, String)> {
