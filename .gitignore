@@ -1,8 +1,3 @@
-# AI tools
-.claude/
-.auto-claude/
-.worktrees/
-
 # Node
 node_modules/
 
@@ -42,13 +37,5 @@ lerna-debug.log*
 *.tmp
 *.bak
 
-# ML Models
-models/
-*.onnx
-*.pt
-*.pth
-*.bin
-*.safetensors
-
-# Reference
-_reference/
+# Builds
+dist/
