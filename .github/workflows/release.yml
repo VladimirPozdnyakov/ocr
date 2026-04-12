@@ -79,11 +79,11 @@ jobs:
 
       - name: Create package
         run: |
-          mkdir -p dist/koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64
-          cp target/release/koharu dist/koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64/
-          cp -r ui/out dist/koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64/ui
-          cat > dist/koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64/README.md << 'EOF'
-          # Koharu ${{ steps.version.outputs.VERSION }} (Linux x86_64)
+          mkdir -p dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64
+          cp target/release/koharu dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64/
+          cp -r ui/out dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64/ui
+          cat > dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64/README.md << 'EOF'
+          # Lilith Koharu ${{ steps.version.outputs.VERSION }} (Linux x86_64)
 
           OCR-приложение для манги с ML-ускорением.
 
@@ -120,13 +120,13 @@ jobs:
           ```
           EOF
           cd dist
-          tar -czvf koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64
+          tar -czvf lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: koharu-linux-x86_64
-          path: dist/koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz
+          name: lilith-koharu-linux-x86_64
+          path: dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz
 
   build-windows:
     name: Build Windows
@@ -171,11 +171,11 @@ jobs:
       - name: Create package
         shell: bash
         run: |
-          mkdir -p dist/koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64
-          cp target/release/koharu.exe dist/koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64/
-          cp -r ui/out dist/koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64/ui
-          cat > dist/koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64/README.md << 'EOF'
-          # Koharu ${{ steps.version.outputs.VERSION }} (Windows x86_64)
+          mkdir -p dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64
+          cp target/release/koharu.exe dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64/
+          cp -r ui/out dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64/ui
+          cat > dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64/README.md << 'EOF'
+          # Lilith Koharu ${{ steps.version.outputs.VERSION }} (Windows x86_64)
 
           OCR-приложение для манги с ML-ускорением.
 
@@ -213,13 +213,13 @@ jobs:
           ```
           EOF
           cd dist
-          7z a -tzip koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64
+          7z a -tzip lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: koharu-windows-x86_64
-          path: dist/koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip
+          name: lilith-koharu-windows-x86_64
+          path: dist/lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip
 
   release:
     name: Create Release
@@ -240,20 +240,20 @@ jobs:
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: koharu-linux-x86_64
+          name: lilith-koharu-linux-x86_64
           path: artifacts
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: koharu-windows-x86_64
+          name: lilith-koharu-windows-x86_64
           path: artifacts
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.VERSION }}
-          name: Koharu ${{ steps.version.outputs.VERSION }}
+          name: Lilith Koharu ${{ steps.version.outputs.VERSION }}
           body: |
             ## Изменения
 
@@ -263,8 +263,8 @@ jobs:
 
             | Платформа | Файл |
             |-----------|------|
-            | Linux x86_64 | `koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz` |
-            | Windows x86_64 | `koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip` |
+            | Linux x86_64 | `lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz` |
+            | Windows x86_64 | `lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip` |
 
             ## Требования
 
@@ -273,7 +273,7 @@ jobs:
 
             При первом запуске модели загрузятся автоматически из Hugging Face.
           files: |
-            artifacts/koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz
-            artifacts/koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip
+            artifacts/lilith-koharu-${{ steps.version.outputs.VERSION }}-linux-x86_64.tar.gz
+            artifacts/lilith-koharu-${{ steps.version.outputs.VERSION }}-windows-x86_64.zip
           draft: false
           prerelease: false

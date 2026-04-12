@@ -1,4 +1,4 @@
-# Koharu
+# Koharu (Lilith Edition)
 
 Форк для команды [Lilith Team](https://t.me/+yq6z7BZcZ84xODJi)
 
@@ -143,7 +143,7 @@ Koharu использует несколько предобученных мод
 
 ## Установка
 
-Вы можете скачать последний релиз Koharu со [страницы релизов](https://github.com/VladimirPozdnyakov/ocr/releases/latest).
+Вы можете скачать последний релиз Koharu (Lilith Edition) со [страницы релизов](https://github.com/VladimirPozdnyakov/ocr/releases/latest).
 
 Мы предоставляем предсобранные бинарники для Windows, macOS и Linux. Для других платформ может потребоваться сборка из исходников.
 
@@ -191,4 +191,4 @@ cargo build --release
 
 ## Лицензия
 
-Koharu лицензирован под [GNU General Public License v3.0](LICENSE).
+Koharu (Lilith Edition) лицензирован под [GNU General Public License v3.0](LICENSE).
