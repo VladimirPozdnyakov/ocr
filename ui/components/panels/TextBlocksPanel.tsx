@@ -145,7 +145,6 @@ function BlockCard({
   const { t } = useTranslation()
   const hasOcr = !!block.text?.trim()
   const preview = block.text?.trim()
-  const confidence = Math.round(block.confidence * 100)
 
   // Detector badge styling
   const getDetectorStyle = (detector?: string) => {
@@ -207,23 +206,10 @@ function BlockCard({
 
         <AccordionTrigger className='data-[state=open]:bg-luxury-gold/10 hover:bg-luxury-gold/5 relative flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left transition-all outline-none [&>svg]:hidden'>
           {/* Block Number - Luxury Editorial Display */}
-          <div className='relative shrink-0'>
-            <div className='luxury-border luxury-shadow text-background bg-luxury-navy min-w-[2rem] rounded-sm px-1.5 py-0.5 text-center font-mono text-[10px] font-medium tabular-nums'>
+          <div className='shrink-0'>
+            <div className='luxury-border luxury-shadow bg-luxury-gold text-background min-w-[2rem] rounded-sm px-1.5 py-0.5 text-center font-mono text-[10px] font-medium tabular-nums'>
               {String(index + 1).padStart(2, '0')}
             </div>
-            {/* Confidence indicator */}
-            <div
-              className='absolute right-0 -bottom-0.5 left-0 h-1 rounded-full'
-              style={{
-                background: `linear-gradient(90deg, ${
-                  confidence > 80
-                    ? 'var(--luxury-sage)'
-                    : confidence > 60
-                      ? 'var(--luxury-gold)'
-                      : 'var(--luxury-rose)'
-                } ${confidence}%, transparent ${confidence}%)`,
-              }}
-            />
           </div>
 
           {/* Status Badges */}
@@ -284,19 +270,6 @@ function BlockCard({
                 </p>
               </div>
             )}
-
-            {/* Confidence Percentage */}
-            <div
-              className={`luxury-border luxury-shadow shrink-0 rounded-sm px-1 py-0.5 font-mono text-[9px] font-medium tabular-nums ${
-                confidence > 80
-                  ? 'bg-luxury-sage text-background'
-                  : confidence > 60
-                    ? 'bg-luxury-gold text-background'
-                    : 'bg-luxury-rose text-background'
-              }`}
-            >
-              {confidence}%
-            </div>
           </div>
         </AccordionTrigger>
 
@@ -313,14 +286,13 @@ function BlockCard({
             </div>
 
             {/* Textarea with Luxury Editorial styling */}
-            <div className='relative'>
+            <div className='relative max-w-[280px]'>
               <DraftTextarea
                 data-testid={`textblock-ocr-${index}`}
                 value={block.text ?? ''}
                 placeholder={t('textBlocks.addOcrPlaceholder')}
-                rows={3}
                 onValueChange={(value) => onChange({ text: value })}
-                className='luxury-border luxury-shadow bg-card text-foreground focus:border-luxury-gold focus:ring-luxury-gold/20 min-h-0 resize-none rounded-sm px-3 py-2 font-mono text-[10px]'
+                className='luxury-border luxury-shadow bg-card text-foreground focus:border-luxury-gold focus:ring-luxury-gold/20 max-h-48 min-h-[60px] w-full resize-y rounded-sm px-3 py-2 font-mono text-[10px]'
               />
             </div>
           </div>
