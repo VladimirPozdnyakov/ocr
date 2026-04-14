@@ -341,15 +341,47 @@ export const api = {
     return withRpcError('export_document', async () => {
       const summary = await getDocumentSummaryAtIndex(index)
       const detail = await getCachedOrFetchDocumentDetail(summary.id)
-      const text = detail.textBlocks
+      const pageNum = index + 1
+      const blockTexts = detail.textBlocks
         .map((block) => block.text ?? '')
         .filter((text) => text.length > 0)
-        .join('\n')
+      const text = `=== Страница ${pageNum} ===\n` + blockTexts.join('\n')
 
       const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
       try {
         await fileSave(blob, {
-          fileName: `${summary.name}_ocr.txt`,
+          fileName: `${summary.name}_page${pageNum}_ocr.txt`,
+        })
+      } catch {
+        // User cancelled the file save dialog
+      }
+    })
+  },
+
+  async exportAllDocuments(): Promise<void> {
+    return withRpcError('export_all_documents', async () => {
+      const documents = await getDocuments()
+      if (documents.length === 0) return
+
+      const parts: string[] = []
+      for (let i = 0; i < documents.length; i++) {
+        const summary = documents[i]
+        const detail = await getCachedOrFetchDocumentDetail(summary.id)
+        const pageNum = i + 1
+        const blockTexts = detail.textBlocks
+          .map((block) => block.text ?? '')
+          .filter((text) => text.length > 0)
+        if (blockTexts.length > 0 || i === 0) {
+          parts.push(`=== Страница ${pageNum} ===`)
+          parts.push(...blockTexts)
+        }
+      }
+
+      const text = parts.join('\n')
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+      try {
+        await fileSave(blob, {
+          fileName: 'all_pages_ocr.txt',
         })
       } catch {
         // User cancelled the file save dialog

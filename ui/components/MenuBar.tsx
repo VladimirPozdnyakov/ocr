@@ -10,6 +10,9 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
   MenubarTrigger,
 } from '@/components/ui/menubar'
 import { useDocumentMutations } from '@/lib/query/mutations'
@@ -38,6 +41,7 @@ export function MenuBar() {
     processImage,
     processAllImages,
     exportDocument,
+    exportAllDocuments,
   } = useDocumentMutations()
 
   const fileMenuItems: MenuItem[] = [
@@ -60,11 +64,6 @@ export function MenuBar() {
       label: t('menu.addFolder'),
       onSelect: addFolder,
       testId: 'menu-file-add-folder',
-    },
-    {
-      label: t('menu.export'),
-      onSelect: exportDocument,
-      testId: 'menu-file-export',
     },
   ]
 
@@ -153,6 +152,32 @@ export function MenuBar() {
                 {item.label}
               </MenubarItem>
             ))}
+            <MenubarSub>
+              <MenubarSubTrigger
+                className='text-[13px]'
+                data-testid='menu-file-export'
+              >
+                {t('menu.export')}
+              </MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem
+                  className='text-[13px]'
+                  onSelect={() => {
+                    void exportDocument()
+                  }}
+                >
+                  {t('menu.exportCurrent')}
+                </MenubarItem>
+                <MenubarItem
+                  className='text-[13px]'
+                  onSelect={() => {
+                    void exportAllDocuments()
+                  }}
+                >
+                  {t('menu.exportAll')}
+                </MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
           </MenubarContent>
         </MenubarMenu>
         {menus.map(({ label, items, triggerTestId }) => (

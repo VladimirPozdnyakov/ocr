@@ -10,6 +10,8 @@
     "addFolder": "Add Folder...",
     "save": "Save...",
     "export": "Export...",
+    "exportCurrent": "Current page",
+    "exportAll": "All pages",
     "view": "View",
     "fitWindow": "Fit Window",
     "originalSize": "Original Size",

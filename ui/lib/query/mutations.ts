@@ -317,6 +317,10 @@ export const useDocumentMutations = () => {
     await api.exportDocument(currentDocumentIndex)
   }, [])
 
+  const exportAllDocuments = useCallback(async () => {
+    await api.exportAllDocuments()
+  }, [])
+
   const cancelOperation = useCallback(async () => {
     useOperationStore.getState().cancelOperation()
     await api.processCancel().catch(() => {})
@@ -334,6 +338,7 @@ export const useDocumentMutations = () => {
     processImage,
     processAllImages,
     exportDocument,
+    exportAllDocuments,
     cancelOperation,
     setProgress,
     clearProgress,
