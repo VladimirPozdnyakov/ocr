@@ -7,6 +7,7 @@ import type {
   JobState,
   SnapshotEvent,
 } from '@/lib/protocol'
+import { logger } from '@/lib/logger'
 
 type ServerEventMap = {
   snapshot: SnapshotEvent
@@ -106,7 +107,7 @@ const ensureEventSource = () => {
         const payload = JSON.parse((event as MessageEvent).data)
         handleEventPayload(eventName, payload)
       } catch (error) {
-        console.error(`[backend] failed to parse ${eventName}`, error)
+        logger.error(`[backend] failed to parse ${eventName}`, error)
       }
     })
   }

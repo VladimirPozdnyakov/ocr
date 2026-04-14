@@ -132,5 +132,13 @@
     "scanResultsIcon": "Scan results icon",
     "noTextBlocksIcon": "No text blocks icon",
     "dragToReorder": "Drag to reorder"
+  },
+  "errors": {
+    "unknownError": "An unknown error occurred",
+    "navigatorError": "Navigator Error",
+    "canvasError": "Canvas Error",
+    "panelsError": "Panels Error",
+    "reload": "Reload",
+    "processingFailed": "Failed to process image"
   }
 }

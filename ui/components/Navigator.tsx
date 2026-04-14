@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTranslation } from 'react-i18next'
 import { useDocumentsCountQuery, useThumbnailQuery } from '@/lib/query/hooks'
@@ -11,7 +11,14 @@ import { LoaderCircleIcon } from 'lucide-react'
 import { flushTextBlockSync } from '@/lib/services/syncQueues'
 import { cancelObjectUrlRevoke, revokeObjectUrlLater } from '@/lib/util'
 
-export function Navigator() {
+type PagePreviewProps = {
+  index: number
+  documentsVersion: number
+  selected: boolean
+  onSelect: () => void
+}
+
+export const Navigator = memo(function Navigator() {
   const { data: totalPagesData = 0 } = useDocumentsCountQuery()
   const totalPages = totalPagesData ?? 0
   const documentsVersion = useEditorUiStore((state) => state.documentsVersion)
@@ -112,14 +119,7 @@ export function Navigator() {
       </ScrollArea>
     </div>
   )
-}
-
-type PagePreviewProps = {
-  index: number
-  documentsVersion: number
-  selected: boolean
-  onSelect: () => void
-}
+})
 
 function PagePreview({
   index,

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTheme } from 'next-themes'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
+import { logger } from '@/lib/logger'
 import {
   SunIcon,
   MoonIcon,
@@ -42,7 +43,7 @@ export default function SettingsPage() {
         const info = await api.deviceInfo()
         setDeviceInfo(info)
       } catch (error) {
-        console.error('Failed to load device info', error)
+        logger.error('Failed to load device info', error)
       }
     }
 

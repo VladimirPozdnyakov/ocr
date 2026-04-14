@@ -8,6 +8,7 @@ import {
   setActivePipelineJobId,
 } from '@/lib/backend'
 import { reportRpcError } from '@/lib/errors'
+import { logger } from '@/lib/logger'
 import type {
   ApiKeyResponse,
   DocumentDetail,
@@ -96,7 +97,7 @@ const fetchLayer = async (documentId: string, layer: string) => {
 const mapTextBlock = (
   block: DocumentDetail['textBlocks'][number],
 ): TextBlock => {
-  console.log('[api] Mapping text block:', {
+  logger.info('[api] Mapping text block', {
     id: block.id,
     detector: block.detector,
     hasText: !!block.text,

@@ -10,6 +10,8 @@ import { useEditorUiStore } from '@/lib/stores/editorUiStore'
 import { useOperationStore } from '@/lib/stores/operationStore'
 import { queryKeys } from '@/lib/query/keys'
 import { enqueueTextBlockSync } from '@/lib/services/syncQueues'
+import { logger } from '@/lib/logger'
+import { useToast } from '@/hooks/useToast'
 
 const invalidateCurrentDocument = async (
   queryClient: QueryClient,
@@ -97,6 +99,7 @@ export const useMaskMutations = () => {
 export const useDocumentMutations = () => {
   const queryClient = useQueryClient()
   const { setProgress, clearProgress } = useProgressActions()
+  const { toast } = useToast()
 
   const refreshDocuments = useCallback(async () => {
     await queryClient.invalidateQueries({
@@ -286,12 +289,13 @@ export const useDocumentMutations = () => {
           index: resolvedIndex,
         })
       } catch (error) {
-        console.error('Failed to start processing:', error)
+        logger.error('Failed to start processing', error)
+        toast('Failed to process image', 'error')
         finishOperation()
         await clearProgress()
       }
     },
-    [clearProgress],
+    [clearProgress, toast],
   )
 
   const processAllImages = useCallback(async () => {
@@ -307,11 +311,12 @@ export const useDocumentMutations = () => {
     try {
       await api.process({})
     } catch (error) {
-      console.error('Failed to start processing:', error)
+      logger.error('Failed to start processing', error)
+      toast('Failed to process all images', 'error')
       finishOperation()
       await clearProgress()
     }
-  }, [clearProgress])
+  }, [clearProgress, toast])
 
   const exportDocument = useCallback(async () => {
     const { currentDocumentIndex } = useEditorUiStore.getState()

@@ -11,9 +11,9 @@ members = [
     "koharu-types",
 ]
 default-members = ["koharu"]
+resolver = "3"
 
 [workspace.package]
-name = "lilith-koharu"
 version = "0.40.1"
 edition = "2024"
 description = "Manga OCR tools"
@@ -27,7 +27,6 @@ homepage = "https://koharu.rs"
 repository = "https://github.com/mayocream/koharu"
 keywords = ["manga", "ocr", "deep_learning", "computer_vision"]
 publish = false
-resolver = "3"
 
 [workspace.dependencies]
 koharu-http = { path = "koharu-http", default-features = false }

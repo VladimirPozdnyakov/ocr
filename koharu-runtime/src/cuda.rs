@@ -106,6 +106,7 @@ struct CudaWheel {
     linux_dylibs: &'static [&'static str],
 }
 
+#[allow(dead_code)]
 const WHEELS: &[CudaWheel] = &[
     CudaWheel {
         name: "nvidia-cuda-runtime/13.1.80",
@@ -129,6 +130,7 @@ const WHEELS: &[CudaWheel] = &[
     },
 ];
 
+#[allow(dead_code)]
 fn platform_tags() -> Result<&'static [&'static str]> {
     #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
     return Ok(&["win_amd64"]);
@@ -148,6 +150,7 @@ fn platform_tags() -> Result<&'static [&'static str]> {
 }
 
 impl CudaWheel {
+    #[allow(dead_code)]
     fn dylibs(&self) -> &'static [&'static str] {
         #[cfg(target_os = "windows")]
         return self.windows_dylibs;
@@ -160,6 +163,7 @@ impl CudaWheel {
     }
 }
 
+#[allow(dead_code)]
 fn source_id() -> Result<String> {
     let wheels: Vec<&str> = WHEELS.iter().map(|w| w.name).collect();
     Ok(format!(
@@ -208,6 +212,7 @@ pub(crate) async fn ensure_ready(root: &Path, downloads_dir: &Path) -> Result<()
     }
 }
 
+#[allow(dead_code)]
 async fn select_wheel(package: &str, tags: &[&str]) -> Result<(String, String)> {
     let (dist, version) = package
         .split_once('/')

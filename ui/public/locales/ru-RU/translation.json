@@ -132,5 +132,13 @@
     "scanResultsIcon": "Иконка результатов скана",
     "noTextBlocksIcon": "Иконка нет текстовых блоков",
     "dragToReorder": "Перетащите для изменения порядка"
+  },
+  "errors": {
+    "unknownError": "Произошла неизвестная ошибка",
+    "navigatorError": "Ошибка навигатора",
+    "canvasError": "Ошибка холста",
+    "panelsError": "Ошибка панелей",
+    "reload": "Перезагрузить",
+    "processingFailed": "Не удалось обработать изображение"
   }
 }

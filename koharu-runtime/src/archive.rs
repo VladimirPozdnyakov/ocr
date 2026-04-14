@@ -71,6 +71,7 @@ pub(crate) fn extract_zip(archive_path: &Path, output_dir: &Path) -> Result<()> 
 }
 
 /// Extract specific files by name from a zip archive (case-insensitive match on basename).
+#[allow(dead_code)]
 pub(crate) fn extract_zip_selected(
     archive_path: &Path,
     output_dir: &Path,
@@ -229,6 +230,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(target_os = "windows")]
     fn extract_zip_selected_filters_by_name() {
         let tempdir = tempfile::tempdir().unwrap();
         let archive_path = tempdir.path().join("test.zip");

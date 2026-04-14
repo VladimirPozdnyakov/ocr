@@ -2,6 +2,7 @@
 
 import PQueue from 'p-queue'
 import { TextBlock } from '@/types'
+import { logger } from '@/lib/logger'
 
 type TextBlockPayload = {
   index: number
@@ -26,17 +27,17 @@ const scheduleTextBlockFlush = () => {
         const cacheKey = `/api/v1/documents`
         const documentsResponse = await fetch(cacheKey)
         if (!documentsResponse.ok) {
-          console.error('Failed to fetch documents list')
+          logger.error('Failed to fetch documents list')
           return
         }
         const documents = await documentsResponse.json()
         const document = documents[payload.index]
         if (!document) {
-          console.error(`Document with index ${payload.index} not found`)
+          logger.error(`Document with index ${payload.index} not found`)
           return
         }
 
-        console.log('[syncQueues] Syncing text blocks for document:', {
+        logger.info('[syncQueues] Syncing text blocks for document:', {
           index: payload.index,
           documentId: document.id,
           textBlocksCount: payload.textBlocks.length,

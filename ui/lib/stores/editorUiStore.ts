@@ -61,14 +61,16 @@ export const useEditorUiStore = create<EditorUiState>((set, get) => ({
   setShowSegmentationMask: (show) => set({ showSegmentationMask: show }),
   setShowTextBlocksOverlay: (show) => set({ showTextBlocksOverlay: show }),
   setMode: (mode) => {
-    set({ mode })
+    const updates: Partial<EditorUiState> = { mode }
 
     if (mode === 'block') {
-      set({
+      Object.assign(updates, {
         showTextBlocksOverlay: true,
         showSegmentationMask: true,
       })
     }
+
+    set(updates)
   },
   setSelectedBlockIndex: (index) => set({ selectedBlockIndex: index }),
   setAutoFitEnabled: (enabled) => set({ autoFitEnabled: enabled }),

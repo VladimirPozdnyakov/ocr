@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import type React from 'react'
+import { memo } from 'react'
 import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 import { useGesture } from '@use-gesture/react'
 import {
@@ -32,7 +33,7 @@ import {
 
 const PAN_STEP = 50
 
-export function Workspace() {
+export const Workspace = memo(function Workspace() {
   const scale = useEditorUiStore((state) => state.scale)
   const showTextBlocksOverlay = useEditorUiStore(
     (state) => state.showTextBlocksOverlay,
@@ -344,4 +345,4 @@ export function Workspace() {
       </div>
     </div>
   )
-}
+})
