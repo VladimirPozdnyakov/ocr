@@ -108,10 +108,10 @@ export function MenuBar() {
     <div className='luxury-border luxury-shadow border-border bg-background text-foreground flex h-9 items-center border-b text-[13px]'>
       {/* Logo */}
       <div className='flex h-full items-center pl-3 select-none'>
-        <div className='hover:luxury-scale-subtle flex size-6 items-center justify-center rounded-sm transition-all duration-300'>
+        <div className='hover:luxury-scale-subtle active:scale-95 flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-sm transition-all duration-300'>
           <Image
             src='/logo.jpg'
-            alt='Lilith Team'
+            alt={t('aria.lilithTeamLogo')}
             width={20}
             height={20}
             draggable={false}
@@ -125,7 +125,7 @@ export function MenuBar() {
         <MenubarMenu>
           <MenubarTrigger
             data-testid='menu-file-trigger'
-            className='hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'
+            className='hover:bg-luxury-gold hover:text-background active:bg-luxury-gold/90 active:scale-95 data-[state=open]:bg-luxury-gold data-[state=open]:text-background min-h-[44px] cursor-pointer font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-150'
           >
             {t('menu.file')}
           </MenubarTrigger>
@@ -184,7 +184,7 @@ export function MenuBar() {
           <MenubarMenu key={label}>
             <MenubarTrigger
               data-testid={triggerTestId}
-              className='hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'
+              className='hover:bg-luxury-gold hover:text-background active:bg-luxury-gold/90 active:scale-95 data-[state=open]:bg-luxury-gold data-[state=open]:text-background min-h-[44px] cursor-pointer font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-150'
             >
               {label}
             </MenubarTrigger>
@@ -215,7 +215,7 @@ export function MenuBar() {
           </MenubarMenu>
         ))}
         <MenubarMenu>
-          <MenubarTrigger className='hover:bg-luxury-gold hover:text-background data-[state=open]:bg-luxury-gold data-[state=open]:text-background font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-200'>
+          <MenubarTrigger className='hover:bg-luxury-gold hover:text-background active:bg-luxury-gold/90 active:scale-95 data-[state=open]:bg-luxury-gold data-[state=open]:text-background min-h-[44px] cursor-pointer font-inter rounded-sm px-4 py-1.5 font-medium tracking-wide transition-all duration-150'>
             {t('menu.help')}
           </MenubarTrigger>
           <MenubarContent

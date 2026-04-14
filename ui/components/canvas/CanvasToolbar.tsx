@@ -34,12 +34,12 @@ function WorkflowButtons() {
         onClick={detect}
         data-testid='toolbar-detect'
         disabled={isDetecting}
-        className='luxury-border-subtle luxury-shadow hover:bg-luxury-gold hover:text-background data-[disabled]:opacity-50 rounded-sm px-4 py-2 font-inter font-medium tracking-wide transition-all duration-200'
+        className='luxury-border-subtle luxury-shadow hover:bg-luxury-gold hover:text-background active:bg-luxury-gold/90 active:scale-95 data-[disabled]:opacity-50 min-h-[44px] cursor-pointer rounded-sm px-4 py-2 font-inter font-medium tracking-wide transition-all duration-150'
       >
         {isDetecting ? (
-          <LoaderCircleIcon className='size-4 luxury-fade-in text-luxury-gold' />
+          <LoaderCircleIcon className='size-4 luxury-fade-in text-luxury-gold' aria-label={t('aria.detecting')} />
         ) : (
-          <ScanIcon className='size-4' />
+          <ScanIcon className='size-4' aria-label={t('aria.detectTextBlocks')} />
         )}
         <span className='ml-1'>{t('processing.detect')}</span>
       </Button>
@@ -52,12 +52,12 @@ function WorkflowButtons() {
         onClick={ocr}
         data-testid='toolbar-ocr'
         disabled={isOcr}
-        className='luxury-border-subtle luxury-shadow hover:bg-luxury-gold hover:text-background data-[disabled]:opacity-50 rounded-sm px-4 py-2 font-inter font-medium tracking-wide transition-all duration-200'
+        className='luxury-border-subtle luxury-shadow hover:bg-luxury-gold hover:text-background active:bg-luxury-gold/90 active:scale-95 data-[disabled]:opacity-50 min-h-[44px] cursor-pointer rounded-sm px-4 py-2 font-inter font-medium tracking-wide transition-all duration-150'
       >
         {isOcr ? (
-          <LoaderCircleIcon className='size-4 luxury-fade-in text-luxury-gold' />
+          <LoaderCircleIcon className='size-4 luxury-fade-in text-luxury-gold' aria-label={t('statusBar.ocr') + '...'} />
         ) : (
-          <ScanTextIcon className='size-4' />
+          <ScanTextIcon className='size-4' aria-label={t('aria.recognizeText')} />
         )}
         <span className='ml-1'>{t('processing.ocr')}</span>
       </Button>

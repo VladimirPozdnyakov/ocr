@@ -35,8 +35,9 @@
   --sidebar-accent-foreground: #0f172a;
   --sidebar-border: #cbd5e1;
   --sidebar-ring: #b8860b;
-  /* Luxury Editorial Specific Colors */
+  /* Luxury Editorial Specific Colors - Enhanced Contrast */
   --luxury-gold: #b8860b;
+  --luxury-gold-text: #9a6b00;  /* Darker gold for text on light backgrounds (4.5:1+) */
   --luxury-gold-light: #d4a017;
   --luxury-rose: #c084fc;
   --luxury-navy: #0f172a;
@@ -82,6 +83,7 @@
   --sidebar-ring: #fbbf24;
   /* Luxury Editorial Specific Colors - Dark Mode */
   --luxury-gold: #fbbf24;
+  --luxury-gold-text: #fcd34d;  /* Lighter gold for text on dark backgrounds */
   --luxury-gold-light: #fcd34d;
   --luxury-rose: #a855f7;
   --luxury-navy: #f8fafc;
@@ -96,6 +98,55 @@
     border-color: var(--border);
     outline-color: rgb(var(--ring) / 50%);
   }
+
+  /* Enhanced Focus States for Keyboard Navigation */
+  *:focus-visible {
+    outline: 2px solid var(--luxury-gold);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible {
+    box-shadow: 0 0 0 2px var(--background),
+                0 0 0 4px var(--luxury-gold);
+  }
+
+  /* Enhanced Link Styles */
+  a {
+    color: var(--luxury-gold-text);
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  a:hover {
+    color: var(--luxury-gold);
+    text-decoration: underline;
+    text-decoration-color: var(--luxury-gold);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  a:focus-visible {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  a:active {
+    transform: scale(0.98);
+  }
+
+  /* Interactive Elements Base Styles */
+  button,
+  [role="button"],
+  input,
+  textarea,
+  select {
+    transition-property: color, background-color, border-color, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);
@@ -207,6 +258,23 @@
   animation: luxury-scale-subtle 2s ease-in-out infinite;
 }
 
+/* Reduced Motion Support for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .luxury-shimmer,
+  .luxury-scale-subtle,
+  .activity-progress-indeterminate {
+    animation: none !important;
+  }
+}
+
 /* Luxury Editorial Utility Classes */
 .luxury-border {
   border: 1px solid var(--border);
@@ -287,6 +355,10 @@
 
 .text-luxury-gold {
   color: var(--luxury-gold);
+}
+
+.text-luxury-gold-text {
+  color: var(--luxury-gold-text);
 }
 
 .text-luxury-navy {

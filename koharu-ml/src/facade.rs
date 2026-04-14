@@ -24,6 +24,7 @@ const BLOCK_OVERLAP_DEDUPE_THRESHOLD: f32 = 0.9;
 const OCR_MAX_NEW_TOKENS: usize = 128;
 const MIN_BLOCK_DIMENSION: f32 = 6.0;
 const MIN_BLOCK_AREA: f32 = 48.0;
+const BLOCK_PADDING_RATIO: f32 = 0.08; // 8% padding on each side
 
 fn clamp_near_black(color: [u8; 3]) -> [u8; 3] {
     let max_channel = *color.iter().max().unwrap_or(&0);
@@ -193,6 +194,40 @@ impl Model {
         Ok(())
     }
 
+    /// Run OCR on a single text block.
+    /// Updates the block's text field.
+    pub async fn ocr_text_block(
+        &self,
+        image: &DynamicImage,
+        block: &mut TextBlock,
+    ) -> Result<()> {
+        let ocr_started = Instant::now();
+
+        let crop = crop_text_block_bbox(image, block);
+        let crop_elapsed = ocr_started.elapsed();
+
+        let inference_started = Instant::now();
+        let mut ocr = self
+            .ocr
+            .lock()
+            .map_err(|_| anyhow::anyhow!("PaddleOCR-VL mutex poisoned"))?;
+        let outputs = ocr.inference_images(&[crop], PaddleOcrVlTask::Ocr, OCR_MAX_NEW_TOKENS)?;
+        let inference_elapsed = inference_started.elapsed();
+
+        if let Some(output) = outputs.into_iter().next() {
+            block.text = Some(output.text);
+        }
+
+        tracing::info!(
+            crop_ms = crop_elapsed.as_millis(),
+            inference_ms = inference_elapsed.as_millis(),
+            total_ms = ocr_started.elapsed().as_millis(),
+            "ocr text block"
+        );
+
+        Ok(())
+    }
+
     pub async fn detect_font(&self, image: &DynamicImage, top_k: usize) -> Result<FontPrediction> {
         let mut results = self
             .detect_fonts(std::slice::from_ref(image), top_k)
@@ -278,12 +313,26 @@ fn layout_region_to_text_block(region: &LayoutRegion) -> Option<TextBlock> {
         return None;
     }
 
+    // Calculate padding based on block size (8% of dimensions)
+    let padding_x = width * BLOCK_PADDING_RATIO;
+    let padding_y = height * BLOCK_PADDING_RATIO;
+
+    // Ensure minimum padding of 2 pixels
+    let padding_x = padding_x.max(2.0);
+    let padding_y = padding_y.max(2.0);
+
+    // Apply padding while staying within image bounds
+    let x = (x1 - padding_x).max(0.0);
+    let y = (y1 - padding_y).max(0.0);
+    let padded_width = width + padding_x * 2.0;
+    let padded_height = height + padding_y * 2.0;
+
     let source_direction = infer_text_direction(width, height);
     Some(TextBlock {
-        x: x1,
-        y: y1,
-        width,
-        height,
+        x,
+        y,
+        width: padded_width,
+        height: padded_height,
         confidence: region.score,
         source_direction: Some(source_direction),
         rotation_deg: Some(0.0),

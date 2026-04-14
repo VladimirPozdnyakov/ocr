@@ -31,3 +31,24 @@ pub async fn ocr(state: AppResources, payload: IndexPayload) -> anyhow::Result<(
     )
     .await
 }
+
+#[instrument(level = "info", skip_all)]
+pub async fn ocr_text_block(
+    state: AppResources,
+    document_index: usize,
+    text_block_index: usize,
+) -> anyhow::Result<()> {
+    let mut snapshot = state_tx::read_doc(&state.state, document_index).await?;
+    
+    if let Some(block) = snapshot.text_blocks.get_mut(text_block_index) {
+        state.ml.ocr_text_block(&snapshot.image, block).await?;
+    }
+    
+    state_tx::update_doc(
+        &state.state,
+        document_index,
+        snapshot,
+        &[ChangedField::TextBlocks],
+    )
+    .await
+}

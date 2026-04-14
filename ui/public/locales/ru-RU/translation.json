@@ -62,7 +62,15 @@
     "emptySummary": "<пусто>",
     "ocrLabel": "Текст OCR",
     "ocrBadge": "OCR",
-    "addOcrPlaceholder": "Добавить текст OCR"
+    "addOcrPlaceholder": "Добавить текст OCR",
+    "dragToReorder": "Перетащите для изменения порядка",
+    "scanResults": "РЕЗУЛЬТАТЫ СКАНА",
+    "blocks": "БЛОКИ",
+    "noTextBlocks": "Нет текстовых блоков",
+    "runDetection": "Запустить детекцию для поиска текста",
+    "extractedText": "Извлечённый текст",
+    "rescan": "Пересканировать",
+    "rescanning": "Пересканирование..."
   },
   "workspace": {
     "importPrompt": "Импортируйте страницу, чтобы начать редактирование.",
@@ -70,11 +78,22 @@
   },
   "statusBar": {
     "zoom": "Масштаб",
-    "canvas": "Холст"
+    "canvas": "Холст",
+    "detecting": "Детекция",
+    "ocr": "OCR"
   },
   "toolRail": {
     "select": "Выделение",
     "block": "Блок"
+  },
+  "shortcuts": {
+    "zoom": "Масштаб",
+    "pan": "Панорамирование",
+    "delete": "Удалить",
+    "ctrl": "Ctrl",
+    "plus": "+",
+    "wheel": "Колёсико",
+    "drag": "Перетаскивание"
   },
   "errors": {
     "title": "Ошибка",
@@ -102,5 +121,16 @@
     "device": "Устройство",
     "deviceDescription": "Информация об аппаратном ускорении.",
     "deviceMl": "ML Compute"
+  },
+  "aria": {
+    "lilithTeamLogo": "Логотип Lilith Team",
+    "detectTextBlocks": "Детектировать текстовые блоки",
+    "recognizeText": "Распознать текст (OCR)",
+    "detecting": "Детекция...",
+    "closeNotification": "Закрыть уведомление",
+    "noDataIcon": "Иконка нет данных",
+    "scanResultsIcon": "Иконка результатов скана",
+    "noTextBlocksIcon": "Иконка нет текстовых блоков",
+    "dragToReorder": "Перетащите для изменения порядка"
   }
 }

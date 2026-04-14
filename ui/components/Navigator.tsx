@@ -7,6 +7,7 @@ import { useDocumentsCountQuery, useThumbnailQuery } from '@/lib/query/hooks'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { LoaderCircleIcon } from 'lucide-react'
 import { flushTextBlockSync } from '@/lib/services/syncQueues'
 import { cancelObjectUrlRevoke, revokeObjectUrlLater } from '@/lib/util'
 
@@ -58,7 +59,7 @@ export function Navigator() {
 
       <div className='text-muted-foreground flex items-center gap-1.5 px-2 py-2 text-xs'>
         {totalPages > 0 ? (
-          <div className='luxury-border luxury-shadow bg-luxury-gold text-background rounded-sm px-2 py-0.5 font-mono text-[10px]'>
+          <div className='luxury-border luxury-shadow bg-luxury-gold-text text-background rounded-sm px-2 py-0.5 font-mono text-[10px]'>
             #{currentDocumentIndex + 1}
           </div>
         ) : (
@@ -153,10 +154,15 @@ function PagePreview({
       data-testid={`navigator-page-${index}`}
       data-page-index={index}
       data-selected={selected}
-      className='luxury-border luxury-shadow bg-card data-[selected=true]:luxury-shadow-xl data-[selected=true]:bg-luxury-gold data-[selected=true]:text-background flex h-auto flex-col gap-2 rounded-sm border p-3 text-left transition-all duration-300 hover:shadow-lg'
+      className='luxury-border luxury-shadow bg-card data-[selected=true]:luxury-shadow-xl data-[selected=true]:bg-luxury-gold data-[selected=true]:text-background active:scale-95 cursor-pointer flex h-auto min-h-[44px] flex-col gap-2 rounded-sm border p-3 text-left transition-all duration-150 hover:shadow-lg'
     >
       {loading ? (
-        <div className='bg-muted luxury-lines luxury-shimmer aspect-3/4 w-full rounded-sm' />
+        <div className='luxury-border bg-muted relative aspect-3/4 w-full overflow-hidden rounded-sm'>
+          <div className='absolute inset-0 luxury-shimmer bg-gradient-to-r from-transparent via-luxury-gold/10 to-transparent' />
+          <div className='absolute inset-0 flex items-center justify-center'>
+            <LoaderCircleIcon className='text-luxury-gold/50 size-8 animate-spin' />
+          </div>
+        </div>
       ) : error ? (
         <div className='luxury-border bg-luxury-rose/10 flex aspect-3/4 w-full items-center justify-center rounded-sm'>
           <span className='text-luxury-rose font-poppins text-lg'>?</span>
@@ -166,7 +172,7 @@ function PagePreview({
           <img
             src={preview}
             alt={`Page ${index + 1}`}
-            style={{ objectFit: 'contain' }}
+            loading='lazy'
             className='aspect-3/4 w-full rounded-sm object-cover'
           />
         </div>
@@ -174,7 +180,7 @@ function PagePreview({
         <div className='bg-muted luxury-dots aspect-3/4 w-full rounded-sm' />
       )}
       <div className='text-muted-foreground flex flex-1 items-center text-xs'>
-        <div className='luxury-border luxury-shadow bg-luxury-gold text-background font-poppins mx-auto flex size-6 items-center justify-center rounded-full text-center font-semibold'>
+        <div className='luxury-border luxury-shadow bg-luxury-gold-text text-background font-poppins mx-auto flex size-6 items-center justify-center rounded-full text-center font-semibold'>
           {index + 1}
         </div>
       </div>

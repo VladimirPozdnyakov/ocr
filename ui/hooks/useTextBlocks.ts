@@ -2,7 +2,7 @@
 
 import { useCurrentDocumentState } from '@/lib/query/hooks'
 import { useTextBlockMutations } from '@/lib/query/mutations'
-import { createTempTextBlockId } from '@/lib/api'
+import { createTempTextBlockId, api } from '@/lib/api'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
 import { TextBlock } from '@/types'
 
@@ -13,10 +13,8 @@ const hasGeometryChange = (updates: Partial<TextBlock>) =>
   Object.prototype.hasOwnProperty.call(updates, 'height')
 
 export function useTextBlocks() {
-  const {
-    currentDocument: document,
-    currentDocumentIndex: _currentDocumentIndex,
-  } = useCurrentDocumentState()
+  const { currentDocument: document, currentDocumentIndex } =
+    useCurrentDocumentState()
   const textBlocks = document?.textBlocks ?? []
   const selectedBlockIndex = useEditorUiStore(
     (state) => state.selectedBlockIndex,
@@ -59,6 +57,25 @@ export function useTextBlocks() {
     setSelectedBlockIndex(undefined)
   }
 
+  const moveBlock = async (fromIndex: number, toIndex: number) => {
+    const currentBlocks = document?.textBlocks ?? []
+    if (fromIndex === toIndex) return
+    if (fromIndex < 0 || fromIndex >= currentBlocks.length) return
+    if (toIndex < 0 || toIndex >= currentBlocks.length) return
+
+    const nextBlocks = [...currentBlocks]
+    const [movedBlock] = nextBlocks.splice(fromIndex, 1)
+    nextBlocks.splice(toIndex, 0, movedBlock)
+    await updateTextBlocks(nextBlocks)
+    setSelectedBlockIndex(toIndex)
+  }
+
+  const rescanTextBlock = async (index: number) => {
+    const block = textBlocks[index]
+    if (!block?.id || !document) return
+    await api.ocrTextBlock(currentDocumentIndex, block.id)
+  }
+
   const clearSelection = () => {
     setSelectedBlockIndex(undefined)
   }
@@ -72,5 +89,7 @@ export function useTextBlocks() {
     replaceBlock,
     appendBlock,
     removeBlock,
+    moveBlock,
+    rescanTextBlock,
   }
 }

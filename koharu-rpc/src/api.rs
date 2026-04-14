@@ -71,6 +71,10 @@ pub fn router(resources: SharedResources, events: EventHub) -> Router {
             "/documents/{document_id}/text-blocks/{text_block_id}",
             patch(patch_text_block).delete(delete_text_block),
         )
+        .route(
+            "/documents/{document_id}/text-blocks/{text_block_id}/ocr",
+            post(ocr_text_block),
+        )
         .route("/documents/{document_id}/export", get(export_document))
         .route("/jobs/pipeline", post(start_pipeline_job))
         .route("/jobs/{job_id}", delete(cancel_pipeline_job))
@@ -424,6 +428,24 @@ async fn delete_text_block(
         },
     )
     .await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+async fn ocr_text_block(
+    State(state): State<ApiState>,
+    Path((document_id, text_block_id)): Path<(String, String)>,
+) -> ApiResult<StatusCode> {
+    let resources = state.resources()?;
+    let (doc_index, document) = find_document(&resources, &document_id).await?;
+
+    let block_index = document
+        .text_blocks
+        .iter()
+        .position(|block| block.id == text_block_id)
+        .ok_or_else(|| ApiError::not_found(format!("Text block not found: {text_block_id}")))?;
+
+    operations::ocr_text_block(resources, doc_index, block_index).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }

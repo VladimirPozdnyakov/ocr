@@ -407,6 +407,17 @@ export const api = {
     })
   },
 
+  async ocrTextBlock(index: number, textBlockId: string): Promise<void> {
+    return withRpcError('ocr_text_block', async () => {
+      const summary = await getDocumentSummaryAtIndex(index)
+      await fetchJson<void>(
+        `/documents/${summary.id}/text-blocks/${textBlockId}/ocr`,
+        { method: 'POST' },
+      )
+      documentDetailCache.delete(summary.id)
+    })
+  },
+
   async updateTextBlocks(
     index: number,
     textBlocks: TextBlock[],

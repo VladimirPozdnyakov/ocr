@@ -62,7 +62,15 @@
     "emptySummary": "<empty>",
     "ocrLabel": "OCR text",
     "ocrBadge": "OCR",
-    "addOcrPlaceholder": "Add OCR text"
+    "addOcrPlaceholder": "Add OCR text",
+    "dragToReorder": "Drag to reorder",
+    "scanResults": "SCAN RESULTS",
+    "blocks": "BLOCKS",
+    "noTextBlocks": "No Text Blocks",
+    "runDetection": "Run detection to find text areas",
+    "extractedText": "Extracted Text",
+    "rescan": "Rescan",
+    "rescanning": "Rescanning..."
   },
   "workspace": {
     "importPrompt": "Import a page to begin editing.",
@@ -70,11 +78,22 @@
   },
   "statusBar": {
     "zoom": "Zoom",
-    "canvas": "Canvas"
+    "canvas": "Canvas",
+    "detecting": "Detecting",
+    "ocr": "OCR"
   },
   "toolRail": {
     "select": "Select",
     "block": "Block"
+  },
+  "shortcuts": {
+    "zoom": "Zoom",
+    "pan": "Pan",
+    "delete": "Delete",
+    "ctrl": "Ctrl",
+    "plus": "+",
+    "wheel": "Wheel",
+    "drag": "Drag"
   },
   "errors": {
     "title": "Error",
@@ -102,5 +121,16 @@
     "device": "Device",
     "deviceDescription": "Hardware acceleration information.",
     "deviceMl": "ML Compute"
+  },
+  "aria": {
+    "lilithTeamLogo": "Lilith Team Logo",
+    "detectTextBlocks": "Detect text blocks",
+    "recognizeText": "Recognize text (OCR)",
+    "detecting": "Detecting...",
+    "closeNotification": "Close notification",
+    "noDataIcon": "No data icon",
+    "scanResultsIcon": "Scan results icon",
+    "noTextBlocksIcon": "No text blocks icon",
+    "dragToReorder": "Drag to reorder"
   }
 }
