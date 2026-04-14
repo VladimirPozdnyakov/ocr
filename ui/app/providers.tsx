@@ -22,6 +22,13 @@ import { useOperationStore } from '@/lib/stores/operationStore'
 import { useRpcConnection } from '@/hooks/useRpcConnection'
 import type { DocumentSummary, JobState, SnapshotEvent } from '@/lib/protocol'
 
+const invalidateDocumentQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+) => {
+  queryClient.invalidateQueries({ queryKey: queryKeys.documents.currentRoot })
+  queryClient.invalidateQueries({ queryKey: queryKeys.documents.thumbnailRoot })
+}
+
 function ProvidersBootstrap({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
   const hasConnectedRef = useRef(false)
@@ -39,12 +46,7 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
       documentsVersion: state.documentsVersion + 1,
     }))
     queryClient.setQueryData(queryKeys.documents.count, count)
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.documents.currentRoot,
-    })
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.documents.thumbnailRoot,
-    })
+    invalidateDocumentQueries(queryClient)
   }
 
   const updatePipelineUi = (job: JobState | null) => {
@@ -82,12 +84,7 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
       .setProgressBar({ progress: 100 })
       .catch(() => {})
 
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.documents.currentRoot,
-    })
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.documents.thumbnailRoot,
-    })
+    invalidateDocumentQueries(queryClient)
 
     setTimeout(() => {
       useOperationStore.getState().finishOperation()
@@ -129,23 +126,13 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
     })
 
     const unsubscribeDocument = subscribeDocumentChanged(() => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.documents.currentRoot,
-      })
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.documents.thumbnailRoot,
-      })
+      invalidateDocumentQueries(queryClient)
     })
 
     const unsubscribeJobs = subscribeJobChanged((job) => {
       if (job.kind !== 'pipeline') return
       updatePipelineUi(job)
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.documents.currentRoot,
-      })
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.documents.thumbnailRoot,
-      })
+      invalidateDocumentQueries(queryClient)
     })
 
     return () => {

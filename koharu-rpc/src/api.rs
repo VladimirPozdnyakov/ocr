@@ -676,7 +676,6 @@ mod tests {
                 y: Some(24.0),
                 width: Some(80.0),
                 height: Some(40.0),
-                style: None,
             },
         );
 

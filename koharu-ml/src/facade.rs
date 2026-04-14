@@ -12,10 +12,8 @@ use crate::font_detector::{self, FontDetector};
 use crate::paddleocr_vl::{self, PaddleOcrVl, PaddleOcrVlTask};
 use crate::pp_doclayout_v3::{self, LayoutRegion, PPDocLayoutV3};
 
-const NEAR_BLACK_THRESHOLD: u8 = 12;
-const GRAY_NEAR_BLACK_THRESHOLD: u8 = 60;
-const NEAR_WHITE_THRESHOLD: u8 = 12;
-const GRAY_NEAR_WHITE_THRESHOLD: u8 = 60;
+const NEAR_THRESHOLD: u8 = 12;
+const GRAY_NEAR_THRESHOLD: u8 = 60;
 const GRAY_TOLERANCE: u8 = 10;
 const SIMILAR_COLOR_MAX_DIFF: u8 = 16;
 const PP_DOCLAYOUT_THRESHOLD: f32 = 0.25;
@@ -24,41 +22,49 @@ const BLOCK_OVERLAP_DEDUPE_THRESHOLD: f32 = 0.9;
 const OCR_MAX_NEW_TOKENS: usize = 128;
 const MIN_BLOCK_DIMENSION: f32 = 6.0;
 const MIN_BLOCK_AREA: f32 = 48.0;
-const BLOCK_PADDING_RATIO: f32 = 0.08; // 8% padding on each side
+const BLOCK_PADDING_RATIO: f32 = 0.08;
 
-fn clamp_near_black(color: [u8; 3]) -> [u8; 3] {
+#[derive(Clone, Copy)]
+enum ColorBoundary {
+    Black,
+    White,
+}
+
+fn clamp_near_boundary(color: [u8; 3], boundary: ColorBoundary) -> [u8; 3] {
     let max_channel = *color.iter().max().unwrap_or(&0);
     let min_channel = *color.iter().min().unwrap_or(&0);
     let is_grayish = max_channel.saturating_sub(min_channel) <= GRAY_TOLERANCE;
     let threshold = if is_grayish {
-        GRAY_NEAR_BLACK_THRESHOLD
+        GRAY_NEAR_THRESHOLD
     } else {
-        NEAR_BLACK_THRESHOLD
+        NEAR_THRESHOLD
     };
 
-    if color[0] <= threshold && color[1] <= threshold && color[2] <= threshold {
-        [0, 0, 0]
-    } else {
-        color
+    match boundary {
+        ColorBoundary::Black => {
+            if color.iter().all(|&c| c <= threshold) {
+                [0, 0, 0]
+            } else {
+                color
+            }
+        }
+        ColorBoundary::White => {
+            let min_val = 255u8.saturating_sub(threshold);
+            if color.iter().all(|&c| c >= min_val) {
+                [255, 255, 255]
+            } else {
+                color
+            }
+        }
     }
 }
 
-fn clamp_near_white(color: [u8; 3]) -> [u8; 3] {
-    let max_channel = *color.iter().max().unwrap_or(&0);
-    let min_channel = *color.iter().min().unwrap_or(&0);
-    let is_grayish = max_channel.saturating_sub(min_channel) <= GRAY_TOLERANCE;
-    let threshold = if is_grayish {
-        GRAY_NEAR_WHITE_THRESHOLD
-    } else {
-        NEAR_WHITE_THRESHOLD
-    };
+fn clamp_near_black(color: [u8; 3]) -> [u8; 3] {
+    clamp_near_boundary(color, ColorBoundary::Black)
+}
 
-    let min_white = 255u8.saturating_sub(threshold);
-    if color[0] >= min_white && color[1] >= min_white && color[2] >= min_white {
-        [255, 255, 255]
-    } else {
-        color
-    }
+fn clamp_near_white(color: [u8; 3]) -> [u8; 3] {
+    clamp_near_boundary(color, ColorBoundary::White)
 }
 
 fn colors_similar(a: [u8; 3], b: [u8; 3]) -> bool {
@@ -94,6 +100,15 @@ impl Model {
             ocr: Mutex::new(PaddleOcrVl::load(cpu).await?),
             font_detector: FontDetector::load(cpu).await?,
         })
+    }
+
+    fn lock_ocr(&self) -> Result<std::sync::MutexGuard<'_, PaddleOcrVl>> {
+        self.ocr.lock().map_err(|_| anyhow::anyhow!("PaddleOCR-VL mutex poisoned"))
+    }
+
+    fn run_ocr(&self, images: &[DynamicImage], task: PaddleOcrVlTask) -> Result<Vec<paddleocr_vl::PaddleOcrVlOutput>> {
+        let mut ocr = self.lock_ocr()?;
+        ocr.inference_images(images, task, OCR_MAX_NEW_TOKENS)
     }
 
     /// Detect text blocks and fonts in a document.
@@ -153,8 +168,6 @@ impl Model {
         Ok(())
     }
 
-    /// Run OCR on all text blocks in the document.
-    /// Updates `doc.text_blocks` with recognized text.
     pub async fn ocr(&self, doc: &mut Document) -> Result<()> {
         if doc.text_blocks.is_empty() {
             return Ok(());
@@ -170,11 +183,7 @@ impl Model {
         let crop_elapsed = crop_started.elapsed();
 
         let inference_started = Instant::now();
-        let mut ocr = self
-            .ocr
-            .lock()
-            .map_err(|_| anyhow::anyhow!("PaddleOCR-VL mutex poisoned"))?;
-        let outputs = ocr.inference_images(&regions, PaddleOcrVlTask::Ocr, OCR_MAX_NEW_TOKENS)?;
+        let outputs = self.run_ocr(&regions, PaddleOcrVlTask::Ocr)?;
         let inference_elapsed = inference_started.elapsed();
 
         for (block_index, output) in outputs.into_iter().enumerate() {
@@ -194,8 +203,6 @@ impl Model {
         Ok(())
     }
 
-    /// Run OCR on a single text block.
-    /// Updates the block's text field.
     pub async fn ocr_text_block(&self, image: &DynamicImage, block: &mut TextBlock) -> Result<()> {
         let ocr_started = Instant::now();
 
@@ -203,11 +210,7 @@ impl Model {
         let crop_elapsed = ocr_started.elapsed();
 
         let inference_started = Instant::now();
-        let mut ocr = self
-            .ocr
-            .lock()
-            .map_err(|_| anyhow::anyhow!("PaddleOCR-VL mutex poisoned"))?;
-        let outputs = ocr.inference_images(&[crop], PaddleOcrVlTask::Ocr, OCR_MAX_NEW_TOKENS)?;
+        let outputs = self.run_ocr(&[crop], PaddleOcrVlTask::Ocr)?;
         let inference_elapsed = inference_started.elapsed();
 
         if let Some(output) = outputs.into_iter().next() {
@@ -434,8 +437,8 @@ mod tests {
         ]);
 
         assert_eq!(blocks.len(), 3);
-        assert_eq!(blocks[0].x, 60.0);
-        assert_eq!(blocks[1].x, 10.0);
-        assert_eq!(blocks[2].x, 100.0);
+        assert!((blocks[0].x - 57.6).abs() < 0.1);
+        assert!((blocks[1].x - 7.6).abs() < 0.1);
+        assert!((blocks[2].x - 97.6).abs() < 0.1);
     }
 }

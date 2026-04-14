@@ -13,50 +13,40 @@ const MATCH_GEOMETRY_EPS: f32 = 0.01;
 const MATCH_NEAR_GEOMETRY_DELTA: f32 = 4.0;
 const MATCH_TEXT_GEOMETRY_DELTA: f32 = 64.0;
 
+#[inline]
 fn geometry_delta(a: &TextBlock, b: &TextBlock) -> f32 {
     (a.x - b.x).abs() + (a.y - b.y).abs() + (a.width - b.width).abs() + (a.height - b.height).abs()
 }
 
+#[inline]
 fn geometry_changed(a: &TextBlock, b: &TextBlock) -> bool {
     geometry_delta(a, b) > MATCH_GEOMETRY_EPS
 }
 
+#[inline]
 fn size_changed(a: &TextBlock, b: &TextBlock) -> bool {
     (a.width - b.width).abs() > MATCH_GEOMETRY_EPS
         || (a.height - b.height).abs() > MATCH_GEOMETRY_EPS
 }
 
+#[inline]
 fn geometry_overlaps(a: &TextBlock, b: &TextBlock) -> bool {
-    let ax0 = a.x;
-    let ay0 = a.y;
-    let ax1 = a.x + a.width;
-    let ay1 = a.y + a.height;
-    let bx0 = b.x;
-    let by0 = b.y;
-    let bx1 = b.x + b.width;
-    let by1 = b.y + b.height;
-
-    ax0 < bx1 && ay0 < by1 && ax1 > bx0 && ay1 > by0
+    (a.x < b.x + b.width)
+        && (a.y < b.y + b.height)
+        && (a.x + a.width > b.x)
+        && (a.y + a.height > b.y)
 }
 
+#[inline]
 fn has_stable_content_identity(a: &TextBlock, b: &TextBlock) -> bool {
-    let has_content = a.text.is_some() || b.text.is_some();
-    has_content && a.text == b.text
+    (a.text.is_some() || b.text.is_some()) && a.text == b.text
 }
 
-fn seed_from_block(block: &TextBlock) -> Option<(f32, f32, f32, f32)> {
-    match (
-        block.layout_seed_x,
-        block.layout_seed_y,
-        block.layout_seed_width,
-        block.layout_seed_height,
-    ) {
-        (Some(x), Some(y), Some(width), Some(height))
-            if width.is_finite() && height.is_finite() && width > 0.0 && height > 0.0 =>
-        {
-            Some((x, y, width, height))
-        }
-        _ => None,
+#[inline]
+fn get_layout_seed(block: &TextBlock) -> (f32, f32, f32, f32) {
+    match (block.layout_seed_x, block.layout_seed_y, block.layout_seed_width, block.layout_seed_height) {
+        (Some(x), Some(y), Some(w), Some(h)) if w.is_finite() && h.is_finite() && w > 0.0 && h > 0.0 => (x, y, w, h),
+        _ => (block.x, block.y, block.width.max(1.0), block.height.max(1.0)),
     }
 }
 
@@ -123,10 +113,9 @@ fn rehydrate_runtime_text_block_state(current: &mut TextBlock, previous: Option<
 
     if geometry_changed(current, prev) {
         current.set_layout_seed(current.x, current.y, current.width, current.height);
-    } else if let Some((x, y, width, height)) = seed_from_block(prev) {
-        current.set_layout_seed(x, y, width, height);
     } else {
-        current.set_layout_seed(current.x, current.y, current.width, current.height);
+        let (x, y, w, h) = get_layout_seed(prev);
+        current.set_layout_seed(x, y, w, h);
     }
 }
 
@@ -183,27 +172,27 @@ pub async fn update_text_block(
                 .ok_or_else(|| {
                     anyhow::anyhow!("Text block {} not found", payload.text_block_index)
                 })?;
-            let mut geometry_changed = false;
+            let mut changed = false;
 
             if let Some(x) = payload.x {
                 block.x = x;
-                geometry_changed = true;
+                changed = true;
             }
             if let Some(y) = payload.y {
                 block.y = y;
-                geometry_changed = true;
+                changed = true;
             }
             if let Some(width) = payload.width {
                 block.width = width;
-                geometry_changed = true;
+                changed = true;
                 block.lock_layout_box = true;
             }
             if let Some(height) = payload.height {
                 block.height = height;
-                geometry_changed = true;
+                changed = true;
                 block.lock_layout_box = true;
             }
-            if geometry_changed {
+            if changed {
                 block.set_layout_seed(block.x, block.y, block.width, block.height);
             }
 
@@ -259,7 +248,7 @@ pub async fn remove_text_block(
 
 #[cfg(test)]
 mod tests {
-    use super::{find_matching_previous, rehydrate_runtime_text_block_state};
+    use super::rehydrate_runtime_text_block_state;
     use koharu_types::TextBlock;
 
     #[test]

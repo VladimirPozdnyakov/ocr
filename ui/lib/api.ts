@@ -130,6 +130,7 @@ const toDocumentDetailBlock = (
   confidence: block.confidence,
   linePolygons: block.linePolygons ?? null,
   sourceDirection: block.sourceDirection ?? null,
+  renderedDirection: block.renderedDirection ?? null,
   rotationDeg: block.rotationDeg ?? null,
   detectedFontSizePx: block.detectedFontSizePx ?? null,
   detector: block.detector ?? null,

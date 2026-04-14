@@ -45,6 +45,7 @@ export type TextBlock = {
     [number, number],
   ][]
   sourceDirection?: TextDirection
+  renderedDirection?: TextDirection
   rotationDeg?: number
   detectedFontSizePx?: number
   detector?: string

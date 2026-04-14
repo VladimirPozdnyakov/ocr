@@ -23,13 +23,6 @@ const DET_REARRANGE_MAX_BATCHES: usize = 4;
 const DET_REARRANGE_DOWNSCALE_THRESHOLD: f32 = 2.5;
 const DET_REARRANGE_ASPECT_THRESHOLD: f32 = 3.0;
 
-struct StitchBuffers<'a> {
-    shrink_sum: &'a mut [f32],
-    threshold_sum: &'a mut [f32],
-    mask_sum: &'a mut [f32],
-    counts: &'a mut [f32],
-}
-
 struct PatchPlacement {
     width: u32,
     height: u32,
@@ -243,14 +236,12 @@ impl ComicTextDetector {
 
                     let offset_x = slot as u32 * width;
                     stitch_patch(
-                        StitchBuffers {
-                            shrink_sum: &mut shrink_sum,
-                            threshold_sum: &mut threshold_sum,
-                            mask_sum: &mut mask_sum,
-                            counts: &mut counts,
-                        },
-                        &shrink_map,
-                        &threshold_map,
+                        Some(&mut shrink_sum),
+                        Some(&mut threshold_sum),
+                        &mut mask_sum,
+                        &mut counts,
+                        Some(&shrink_map),
+                        Some(&threshold_map),
                         &mask_map,
                         PatchPlacement {
                             width,
@@ -334,9 +325,13 @@ impl ComicTextDetector {
                     }
 
                     let offset_x = slot as u32 * width;
-                    stitch_mask_patch(
+                    stitch_patch(
+                        None,
+                        None,
                         &mut mask_sum,
                         &mut counts,
+                        None,
+                        None,
                         &mask_map,
                         PatchPlacement {
                             width,
@@ -582,35 +577,14 @@ fn tensor_channel_to_score_map_resized(
     })
 }
 
+#[allow(clippy::too_many_arguments)]
 fn stitch_patch(
-    buffers: StitchBuffers<'_>,
-    shrink_map: &postprocess::ScoreMap,
-    threshold_map: &postprocess::ScoreMap,
-    mask_map: &postprocess::ScoreMap,
-    placement: PatchPlacement,
-) {
-    let PatchPlacement {
-        width,
-        height,
-        offset_x,
-        top,
-        actual_height,
-    } = placement;
-    for y in 0..actual_height.min(height.saturating_sub(top)) {
-        for x in 0..width {
-            let global_index = ((top + y) * width + x) as usize;
-            let source_x = offset_x + x;
-            buffers.shrink_sum[global_index] += shrink_map.get(source_x, y);
-            buffers.threshold_sum[global_index] += threshold_map.get(source_x, y);
-            buffers.mask_sum[global_index] += mask_map.get(source_x, y);
-            buffers.counts[global_index] += 1.0;
-        }
-    }
-}
-
-fn stitch_mask_patch(
+    mut shrink_sum: Option<&mut [f32]>,
+    mut threshold_sum: Option<&mut [f32]>,
     mask_sum: &mut [f32],
     counts: &mut [f32],
+    shrink_map: Option<&postprocess::ScoreMap>,
+    threshold_map: Option<&postprocess::ScoreMap>,
     mask_map: &postprocess::ScoreMap,
     placement: PatchPlacement,
 ) {
@@ -625,6 +599,12 @@ fn stitch_mask_patch(
         for x in 0..width {
             let global_index = ((top + y) * width + x) as usize;
             let source_x = offset_x + x;
+            if let (Some(shrink), Some(sum)) = (shrink_map, shrink_sum.as_deref_mut()) {
+                sum[global_index] += shrink.get(source_x, y);
+            }
+            if let (Some(threshold), Some(sum)) = (threshold_map, threshold_sum.as_deref_mut()) {
+                sum[global_index] += threshold.get(source_x, y);
+            }
             mask_sum[global_index] += mask_map.get(source_x, y);
             counts[global_index] += 1.0;
         }

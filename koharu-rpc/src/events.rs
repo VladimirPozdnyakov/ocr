@@ -251,17 +251,17 @@ mod tests {
         let state = pipeline_job_state(koharu_types::PipelineProgress {
             job_id: "job-1".to_string(),
             status: PipelineStatus::Failed("boom".to_string()),
-            step: Some(PipelineStep::Render),
+            step: Some(PipelineStep::Ocr),
             current_document: 1,
             total_documents: 2,
-            current_step_index: 4,
-            total_steps: 5,
+            current_step_index: 1,
+            total_steps: 2,
             overall_percent: 80,
         });
 
         assert_eq!(state.id, "job-1");
         assert_eq!(state.kind, "pipeline");
-        assert_eq!(state.step.as_deref(), Some("render"));
+        assert_eq!(state.step.as_deref(), Some("ocr"));
         assert_eq!(state.error.as_deref(), Some("boom"));
     }
 

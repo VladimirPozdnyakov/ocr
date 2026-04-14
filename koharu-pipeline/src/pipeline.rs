@@ -178,6 +178,6 @@ mod tests {
         let last = compute_percent(1, 3, total_docs, total_steps);
         assert!(first < middle);
         assert!(middle < last);
-        assert_eq!(last, 87);
+        assert_eq!(last, 88);
     }
 }

@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   output: 'export',
-  reactCompiler: false,
+  reactCompiler: true,
   devIndicators: false,
   images: {
     unoptimized: true,
