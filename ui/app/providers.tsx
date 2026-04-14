@@ -154,6 +154,7 @@ function ProvidersBootstrap({ children }: { children: ReactNode }) {
       unsubscribeDocument()
       unsubscribeJobs()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryClient, setTotalPages])
 
   return children

@@ -1,16 +1,16 @@
 use image::{
-    imageops::{self},
     DynamicImage, GrayImage, Luma, Rgb, RgbImage,
+    imageops::{self},
 };
 use imageproc::{
-    contours::{find_contours, BorderType as ContourBorderType},
+    contours::{BorderType as ContourBorderType, find_contours},
     contrast::otsu_level,
     distance_transform::Norm,
     drawing::draw_polygon_mut,
-    geometric_transformations::{warp_into, Interpolation, Projection},
+    geometric_transformations::{Interpolation, Projection, warp_into},
     morphology::{dilate, erode},
     point::Point,
-    region_labelling::{connected_components, Connectivity},
+    region_labelling::{Connectivity, connected_components},
 };
 use koharu_types::{TextBlock, TextDirection};
 
@@ -751,11 +751,7 @@ fn contour_score_fast(image: &ScoreMap, polygon: &[[f32; 2]]) -> f32 {
         }
     }
 
-    if count <= 0.0 {
-        0.0
-    } else {
-        sum / count
-    }
+    if count <= 0.0 { 0.0 } else { sum / count }
 }
 
 fn group_output(

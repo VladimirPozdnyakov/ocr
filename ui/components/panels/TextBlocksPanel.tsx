@@ -316,7 +316,7 @@ function BlockCard({
             </div>
 
             {/* Textarea with Luxury Editorial styling */}
-            <div className='relative max-w-[280px] min-w-0'>
+            <div className='relative min-w-0'>
               <DraftTextarea
                 data-testid={`textblock-ocr-${index}`}
                 value={block.text ?? ''}

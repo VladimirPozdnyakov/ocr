@@ -189,10 +189,8 @@ pub async fn run() -> Result<()> {
     tracing::info!("Koharu (Lilith Team Edition) is running at {url}");
     tracing::info!("Press Ctrl+C to stop");
 
-    if !no_browser {
-        if let Err(err) = open_browser(&url) {
-            tracing::warn!("Failed to open browser: {err:#}");
-        }
+    if !no_browser && let Err(err) = open_browser(&url) {
+        tracing::warn!("Failed to open browser: {err:#}");
     }
 
     tokio::signal::ctrl_c().await?;
@@ -211,16 +209,12 @@ fn open_browser(url: &str) -> Result<()> {
 
     #[cfg(target_os = "macos")]
     {
-        std::process::Command::new("open")
-            .arg(url)
-            .spawn()?;
+        std::process::Command::new("open").arg(url).spawn()?;
     }
 
     #[cfg(target_os = "linux")]
     {
-        std::process::Command::new("xdg-open")
-            .arg(url)
-            .spawn()?;
+        std::process::Command::new("xdg-open").arg(url).spawn()?;
     }
 
     Ok(())

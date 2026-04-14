@@ -1,5 +1,6 @@
 'use client'
 
+import type { DocumentDetail } from '@/lib/protocol'
 import { useCallback } from 'react'
 import { QueryClient, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
@@ -54,7 +55,7 @@ export const useTextBlockMutations = () => {
       // Cancel in-flight refetches to prevent stale server data from
       // overwriting the optimistic update below.
       void queryClient.cancelQueries({ queryKey })
-      const currentDocument = queryClient.getQueryData<any>(queryKey)
+      const currentDocument = queryClient.getQueryData<DocumentDetail>(queryKey)
       if (!currentDocument) return
       queryClient.setQueryData(queryKey, {
         ...currentDocument,
@@ -77,7 +78,7 @@ export const useMaskMutations = () => {
     async (mask: Uint8Array) => {
       const { currentDocumentIndex } = useEditorUiStore.getState()
       const queryKey = queryKeys.documents.current(currentDocumentIndex)
-      const currentDocument = queryClient.getQueryData<any>(queryKey)
+      const currentDocument = queryClient.getQueryData<DocumentDetail>(queryKey)
       if (!currentDocument) return
 
       queryClient.setQueryData(queryKey, {
@@ -230,7 +231,7 @@ export const useDocumentMutations = () => {
   const { startOperation, finishOperation } = useOperationStore.getState()
 
   const detect = useCallback(
-    async (_?: any, index?: number) => {
+    async (_?: unknown, index?: number) => {
       const resolvedIndex =
         index ?? useEditorUiStore.getState().currentDocumentIndex
       startOperation({
@@ -250,7 +251,7 @@ export const useDocumentMutations = () => {
   )
 
   const ocr = useCallback(
-    async (_?: any, index?: number) => {
+    async (_?: unknown, index?: number) => {
       const resolvedIndex =
         index ?? useEditorUiStore.getState().currentDocumentIndex
       startOperation({
@@ -270,7 +271,7 @@ export const useDocumentMutations = () => {
   )
 
   const processImage = useCallback(
-    async (_?: any, index?: number) => {
+    async (_?: unknown, index?: number) => {
       const resolvedIndex =
         index ?? useEditorUiStore.getState().currentDocumentIndex
       const { startOperation, finishOperation } = useOperationStore.getState()

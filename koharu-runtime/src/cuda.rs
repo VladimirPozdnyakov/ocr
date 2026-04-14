@@ -5,9 +5,6 @@ use anyhow::{Context, Result, anyhow, bail};
 use koharu_http::http::http_client;
 use libloading::Library;
 
-use crate::archive;
-use crate::loader::{add_runtime_search_path, preload_library};
-
 const CUDA_SUCCESS: i32 = 0;
 const CUDA_13_1_DRIVER_VERSION: i32 = 13010;
 
@@ -176,7 +173,7 @@ pub(crate) async fn ensure_ready(root: &Path, downloads_dir: &Path) -> Result<()
     #[cfg(target_os = "linux")]
     {
         let _ = (root, downloads_dir);
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(not(target_os = "linux"))]

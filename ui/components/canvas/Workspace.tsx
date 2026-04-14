@@ -68,6 +68,7 @@ export function Workspace() {
     if (currentDocument && autoFitEnabled) {
       fitCanvasToViewport()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDocument?.id, autoFitEnabled])
   const {
     contextMenuBlockIndex,

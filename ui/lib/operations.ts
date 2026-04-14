@@ -19,8 +19,15 @@ export type OperationSlice = {
   cancelOperation: () => void
 }
 
+type SetState<T> = (
+  partial: T | Partial<T> | ((state: T) => T | Partial<T>),
+  replace?: boolean | undefined,
+) => void
+
 // Simple factory to attach operation helpers to a Zustand store.
-export const createOperationSlice = (set: any): OperationSlice => ({
+export const createOperationSlice = (
+  set: SetState<OperationSlice>,
+): OperationSlice => ({
   operation: undefined,
   startOperation: (operation) =>
     set({

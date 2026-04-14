@@ -196,11 +196,7 @@ impl Model {
 
     /// Run OCR on a single text block.
     /// Updates the block's text field.
-    pub async fn ocr_text_block(
-        &self,
-        image: &DynamicImage,
-        block: &mut TextBlock,
-    ) -> Result<()> {
+    pub async fn ocr_text_block(&self, image: &DynamicImage, block: &mut TextBlock) -> Result<()> {
         let ocr_started = Instant::now();
 
         let crop = crop_text_block_bbox(image, block);
