@@ -26,7 +26,7 @@ export function Toast({ message, type = 'info', onClose }: ToastProps) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className={`luxury-border luxury-shadow fixed bottom-4 right-4 z-50 flex max-w-md items-center gap-3 rounded-sm px-4 py-3 shadow-lg ${
+      className={`luxury-border luxury-shadow flex max-w-md items-center gap-3 rounded-sm px-4 py-3 shadow-lg ${
         type === 'error'
           ? 'bg-luxury-rose/10'
           : type === 'success'
@@ -58,7 +58,7 @@ type ToastContainerProps = {
 
 export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
   return (
-    <div className='fixed bottom-4 right-4 z-50 flex flex-col gap-2'>
+    <div className='fixed bottom-4 right-4 z-[110] flex flex-col gap-2'>
       <AnimatePresence>
         {toasts.map((toast) => (
           <Toast
