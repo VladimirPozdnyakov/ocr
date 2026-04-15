@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
 import { useCurrentDocumentState } from '@/lib/query/hooks'
 import { useTextBlockMutations } from '@/lib/query/mutations'
 import { createTempTextBlockId, api } from '@/lib/api'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/query/keys'
 import { TextBlock } from '@/types'
 
 const hasGeometryChange = (updates: Partial<TextBlock>) =>
@@ -23,10 +24,11 @@ export function useTextBlocks() {
   const setSelectedBlockIndex = useEditorUiStore(
     (state) => state.setSelectedBlockIndex,
   )
+  const pendingDeleteIndex = useEditorUiStore(
+    (state) => state.pendingDeleteIndex,
+  )
   const { updateTextBlocks } = useTextBlockMutations()
-  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<
-    number | undefined
-  >()
+  const queryClient = useQueryClient()
 
   const replaceBlock = async (index: number, updates: Partial<TextBlock>) => {
     const currentBlocks = document?.textBlocks ?? []
@@ -78,19 +80,22 @@ export function useTextBlocks() {
     const block = textBlocks[index]
     if (!block?.id || !document) return
     await api.ocrTextBlock(currentDocumentIndex, block.id)
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.documents.current(currentDocumentIndex),
+    })
   }
 
   const clearSelection = () => {
     setSelectedBlockIndex(undefined)
   }
 
-  const requestDelete = (index: number) => setPendingDeleteIndex(index)
+  const requestDelete = (index: number) =>
+    useEditorUiStore.getState().requestDeleteBlock(index)
   const confirmDelete = () => {
-    const index = pendingDeleteIndex
-    setPendingDeleteIndex(undefined)
+    const index = useEditorUiStore.getState().confirmDeleteBlock()
     if (index !== undefined) void removeBlock(index)
   }
-  const cancelDelete = () => setPendingDeleteIndex(undefined)
+  const cancelDelete = () => useEditorUiStore.getState().cancelDeleteBlock()
 
   return {
     document,

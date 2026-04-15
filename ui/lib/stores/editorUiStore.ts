@@ -13,6 +13,7 @@ type EditorUiState = {
   mode: ToolMode
   selectedBlockIndex?: number
   autoFitEnabled: boolean
+  pendingDeleteIndex?: number
   setTotalPages: (count: number) => void
   setCurrentDocumentIndex: (index: number) => void
   setScale: (scale: number) => void
@@ -21,6 +22,9 @@ type EditorUiState = {
   setMode: (mode: ToolMode) => void
   setSelectedBlockIndex: (index?: number) => void
   setAutoFitEnabled: (enabled: boolean) => void
+  requestDeleteBlock: (index: number) => void
+  confirmDeleteBlock: () => number | undefined
+  cancelDeleteBlock: () => void
   resetUiState: () => void
 }
 
@@ -74,6 +78,13 @@ export const useEditorUiStore = create<EditorUiState>((set, get) => ({
   },
   setSelectedBlockIndex: (index) => set({ selectedBlockIndex: index }),
   setAutoFitEnabled: (enabled) => set({ autoFitEnabled: enabled }),
+  requestDeleteBlock: (index) => set({ pendingDeleteIndex: index }),
+  confirmDeleteBlock: () => {
+    const index = get().pendingDeleteIndex
+    set({ pendingDeleteIndex: undefined })
+    return index
+  },
+  cancelDeleteBlock: () => set({ pendingDeleteIndex: undefined }),
   resetUiState: () =>
     set(() => ({
       ...initialState,

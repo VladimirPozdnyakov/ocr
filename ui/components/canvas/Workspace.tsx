@@ -25,6 +25,7 @@ import { usePointerToDocument } from '@/hooks/usePointerToDocument'
 import { useBlockDrafting } from '@/hooks/useBlockDrafting'
 import { useBlockContextMenu } from '@/hooks/useBlockContextMenu'
 import { useTextBlocks } from '@/hooks/useTextBlocks'
+import { useWorkspaceShortcuts } from '@/hooks/useWorkspaceShortcuts'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
@@ -32,9 +33,8 @@ import {
   resolvePinchNextScaleRatio,
 } from '@/components/canvas/zoomGestures'
 
-const PAN_STEP = 50
-
 export const Workspace = memo(function Workspace() {
+  useWorkspaceShortcuts()
   const scale = useEditorUiStore((state) => state.scale)
   const showTextBlocksOverlay = useEditorUiStore(
     (state) => state.showTextBlocksOverlay,
@@ -51,6 +51,7 @@ export const Workspace = memo(function Workspace() {
     requestDelete,
     confirmDelete,
     cancelDelete,
+    rescanTextBlock,
   } = useTextBlocks()
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const { setScale: applyScale } = useCanvasZoom()
@@ -79,50 +80,16 @@ export const Workspace = memo(function Workspace() {
     contextMenuBlockIndex,
     handleContextMenu,
     handleDeleteBlock,
+    handleRescanBlock,
     clearContextMenu,
   } = useBlockContextMenu({
     currentDocument,
     pointerToDocument,
     selectBlock: setSelectedBlockIndex,
     removeBlock: requestDelete,
+    rescanBlock: (index) => void rescanTextBlock(index),
   })
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (!currentDocument) return
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const viewport = viewportRef.current
-      if (!viewport) return
-
-      let dx = 0
-      let dy = 0
-
-      switch (event.key) {
-        case 'ArrowUp':
-          dy = -PAN_STEP
-          break
-        case 'ArrowDown':
-          dy = PAN_STEP
-          break
-        case 'ArrowLeft':
-          dx = -PAN_STEP
-          break
-        case 'ArrowRight':
-          dx = PAN_STEP
-          break
-        default:
-          return
-      }
-
-      event.preventDefault()
-      viewport.scrollLeft += dx
-      viewport.scrollTop += dy
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentDocument])
 
   // Listen for window resize events
   useEffect(() => {
@@ -223,6 +190,7 @@ export const Workspace = memo(function Workspace() {
     if (event.button === 1) {
       event.preventDefault()
     }
+    if (event.button !== 0) return
     if (mode !== 'block' && event.target === event.currentTarget) {
       clearSelection()
     }
@@ -283,7 +251,6 @@ export const Workspace = memo(function Workspace() {
                       style={{ ...canvasDimensions, cursor: canvasCursor }}
                       onPointerDownCapture={handleCanvasPointerDownCapture}
                       onContextMenuCapture={handleCanvasContextMenu}
-                      onAuxClick={(e) => e.preventDefault()}
                       {...blockDraftBindings}
                     >
                       <div className='absolute inset-0'>
@@ -324,6 +291,13 @@ export const Workspace = memo(function Workspace() {
                 </ContextMenuTrigger>
                 <ContextMenuContent className='min-w-32'>
                   <ContextMenuItem
+                    disabled={contextMenuBlockIndex === undefined}
+                    onSelect={handleRescanBlock}
+                  >
+                    {t('workspace.rescanBlock')}
+                  </ContextMenuItem>
+                  <ContextMenuItem
+                    variant='destructive'
                     disabled={contextMenuBlockIndex === undefined}
                     onSelect={handleDeleteBlock}
                   >

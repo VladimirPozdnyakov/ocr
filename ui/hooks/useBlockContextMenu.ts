@@ -10,6 +10,7 @@ type BlockContextMenuOptions = {
   pointerToDocument: PointerToDocumentFn
   selectBlock: (index?: number) => void
   removeBlock: (index: number) => void
+  rescanBlock: (index: number) => void
 }
 
 export function useBlockContextMenu({
@@ -17,6 +18,7 @@ export function useBlockContextMenu({
   pointerToDocument,
   selectBlock,
   removeBlock,
+  rescanBlock,
 }: BlockContextMenuOptions) {
   const [contextMenuBlockIndex, setContextMenuBlockIndex] = useState<
     number | undefined
@@ -54,6 +56,12 @@ export function useBlockContextMenu({
     setContextMenuBlockIndex(undefined)
   }
 
+  const handleRescanBlock = () => {
+    if (contextMenuBlockIndex === undefined) return
+    rescanBlock(contextMenuBlockIndex)
+    setContextMenuBlockIndex(undefined)
+  }
+
   const clearContextMenu = () => {
     setContextMenuBlockIndex(undefined)
   }
@@ -62,6 +70,7 @@ export function useBlockContextMenu({
     contextMenuBlockIndex,
     handleContextMenu,
     handleDeleteBlock,
+    handleRescanBlock,
     clearContextMenu,
   }
 }

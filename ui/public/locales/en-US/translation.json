@@ -74,7 +74,8 @@
   },
   "workspace": {
     "importPrompt": "Import a page to begin editing.",
-    "deleteBlock": "Delete block"
+    "deleteBlock": "Delete block",
+    "rescanBlock": "Rescan"
   },
   "confirm": {
     "cancel": "Cancel",
@@ -95,13 +96,34 @@
     "block": "Block"
   },
   "shortcuts": {
+    "modalTitle": "Keyboard Shortcuts",
+    "openModal": "Keyboard shortcuts",
     "zoom": "Zoom",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
     "pan": "Pan",
-    "delete": "Delete",
+    "panMiddle": "Pan (middle mouse)",
+    "delete": "Delete block",
+    "deleteKey": "Del",
+    "detect": "Detect",
+    "ocr": "OCR",
+    "process": "Process (detect + OCR)",
+    "export": "Export",
+    "nextPage": "Next page",
+    "prevPage": "Previous page",
+    "firstPage": "First page",
+    "lastPage": "Last page",
+    "selectMode": "Select mode",
+    "blockMode": "Block mode",
     "ctrl": "Ctrl",
     "plus": "+",
     "wheel": "Wheel",
-    "drag": "Drag"
+    "drag": "Drag",
+    "group": {
+      "processing": "Processing",
+      "navigation": "Navigation",
+      "view": "View"
+    }
   },
   "errors": {
     "title": "Error",

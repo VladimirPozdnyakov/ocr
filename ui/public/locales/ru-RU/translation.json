@@ -74,7 +74,8 @@
   },
   "workspace": {
     "importPrompt": "Импортируйте страницу, чтобы начать редактирование.",
-    "deleteBlock": "Удалить блок"
+    "deleteBlock": "Удалить блок",
+    "rescanBlock": "Пересканировать"
   },
   "confirm": {
     "cancel": "Отмена",
@@ -95,13 +96,34 @@
     "block": "Блок"
   },
   "shortcuts": {
+    "modalTitle": "Горячие клавиши",
+    "openModal": "Горячие клавиши",
     "zoom": "Масштаб",
+    "zoomIn": "Увеличить",
+    "zoomOut": "Уменьшить",
     "pan": "Панорамирование",
-    "delete": "Удалить",
+    "panMiddle": "Панорамирование (СКМ)",
+    "delete": "Удалить блок",
+    "deleteKey": "Del",
+    "detect": "Детекция",
+    "ocr": "OCR",
+    "process": "Обработка (детекция + OCR)",
+    "export": "Экспорт",
+    "nextPage": "Следующая страница",
+    "prevPage": "Предыдущая страница",
+    "firstPage": "Первая страница",
+    "lastPage": "Последняя страница",
+    "selectMode": "Режим выделения",
+    "blockMode": "Режим блоков",
     "ctrl": "Ctrl",
     "plus": "+",
     "wheel": "Колёсико",
-    "drag": "Перетаскивание"
+    "drag": "Перетаскивание",
+    "group": {
+      "processing": "Обработка",
+      "navigation": "Навигация",
+      "view": "Вид"
+    }
   },
   "errors": {
     "title": "Ошибка",

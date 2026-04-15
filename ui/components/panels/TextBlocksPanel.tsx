@@ -12,6 +12,12 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -31,6 +37,7 @@ export function TextBlocksPanel() {
     removeBlock,
     moveBlock,
     rescanTextBlock,
+    requestDelete,
   } = useTextBlocks()
   const { t } = useTranslation()
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
@@ -143,39 +150,53 @@ export function TextBlocksPanel() {
               className='flex flex-col gap-1.5'
             >
               {textBlocks.map((block, index) => (
-                <BlockCard
-                  key={`${document.id}-${index}`}
-                  block={block}
-                  index={index}
-                  total={textBlocks.length}
-                  selected={index === selectedBlockIndex}
-                  isDragging={draggedIndex === index}
-                  isDragOver={dragOverIndex === index}
-                  isRescanning={rescanningIndex === index}
-                  onChange={(updates) => void replaceBlock(index, updates)}
-                  onDelete={() => void handleDelete(index)}
-                  onRescan={() => void handleRescan(index)}
-                  onDragStart={() => setDraggedIndex(index)}
-                  onDragEnd={() => {
-                    if (
-                      draggedIndex !== null &&
-                      dragOverIndex !== null &&
-                      draggedIndex !== dragOverIndex
-                    ) {
-                      void moveBlock(draggedIndex, dragOverIndex)
-                    }
-                    setDraggedIndex(null)
-                    setDragOverIndex(null)
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault()
-                    if (draggedIndex !== null && draggedIndex !== index) {
-                      setDragOverIndex(index)
-                    }
-                  }}
-                  onDragLeave={() => setDragOverIndex(null)}
-                  onDrop={() => {}}
-                />
+                <ContextMenu key={`${document.id}-${index}`}>
+                  <ContextMenuTrigger className='relative min-w-0'>
+                    <BlockCard
+                      block={block}
+                      index={index}
+                      total={textBlocks.length}
+                      selected={index === selectedBlockIndex}
+                      isDragging={draggedIndex === index}
+                      isDragOver={dragOverIndex === index}
+                      isRescanning={rescanningIndex === index}
+                      onChange={(updates) => void replaceBlock(index, updates)}
+                      onDelete={() => void handleDelete(index)}
+                      onRescan={() => void handleRescan(index)}
+                      onDragStart={() => setDraggedIndex(index)}
+                      onDragEnd={() => {
+                        if (
+                          draggedIndex !== null &&
+                          dragOverIndex !== null &&
+                          draggedIndex !== dragOverIndex
+                        ) {
+                          void moveBlock(draggedIndex, dragOverIndex)
+                        }
+                        setDraggedIndex(null)
+                        setDragOverIndex(null)
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault()
+                        if (draggedIndex !== null && draggedIndex !== index) {
+                          setDragOverIndex(index)
+                        }
+                      }}
+                      onDragLeave={() => setDragOverIndex(null)}
+                      onDrop={() => {}}
+                    />
+                  </ContextMenuTrigger>
+                  <ContextMenuContent className='min-w-32'>
+                    <ContextMenuItem onSelect={() => void handleRescan(index)}>
+                      {t('workspace.rescanBlock')}
+                    </ContextMenuItem>
+                    <ContextMenuItem
+                      variant='destructive'
+                      onSelect={() => void requestDelete(index)}
+                    >
+                      {t('workspace.deleteBlock')}
+                    </ContextMenuItem>
+                  </ContextMenuContent>
+                </ContextMenu>
               ))}
             </Accordion>
           )}
@@ -232,7 +253,7 @@ const BlockCard = memo(
         animate={{ opacity: 1, x: 0, scale: isDragging ? 1.02 : 1 }}
         exit={{ opacity: 0, x: 20 }}
         transition={{ duration: 0.2, delay: index * 0.02 }}
-        className={`relative ${isDragging ? 'opacity-60' : ''} ${isDragOver ? 'border-luxury-gold border-t-2 pt-2' : ''}`}
+        className={`relative min-w-0 ${isDragging ? 'opacity-60' : ''} ${isDragOver ? 'border-luxury-gold border-t-2 pt-2' : ''}`}
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -242,7 +263,7 @@ const BlockCard = memo(
       >
         <AccordionItem
           value={index.toString()}
-          className={`luxury-border overflow-hidden rounded-sm transition-all duration-300 ${
+          className={`luxury-border min-w-0 overflow-hidden rounded-sm transition-all duration-300 ${
             selected
               ? 'luxury-shadow-xl bg-luxury-gold/10'
               : 'luxury-shadow bg-card'
@@ -278,7 +299,7 @@ const BlockCard = memo(
 
             {/* Text Preview */}
             {preview && (
-              <div className='min-w-0 flex-1'>
+              <div className='min-w-0 flex-1 overflow-hidden'>
                 <p className='text-foreground truncate font-mono text-[10px]'>
                   {preview}
                 </p>
@@ -346,5 +367,10 @@ const BlockCard = memo(
     prev.selected === next.selected &&
     prev.isDragging === next.isDragging &&
     prev.isDragOver === next.isDragOver &&
-    prev.isRescanning === next.isRescanning,
+    prev.isRescanning === next.isRescanning &&
+    prev.onChange === next.onChange &&
+    prev.onDragStart === next.onDragStart &&
+    prev.onDragEnd === next.onDragEnd &&
+    prev.onDragOver === next.onDragOver &&
+    prev.onDragLeave === next.onDragLeave,
 )
