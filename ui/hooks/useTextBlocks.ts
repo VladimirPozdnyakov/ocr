@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useCurrentDocumentState } from '@/lib/query/hooks'
 import { useTextBlockMutations } from '@/lib/query/mutations'
 import { createTempTextBlockId, api } from '@/lib/api'
@@ -23,6 +24,9 @@ export function useTextBlocks() {
     (state) => state.setSelectedBlockIndex,
   )
   const { updateTextBlocks } = useTextBlockMutations()
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<
+    number | undefined
+  >()
 
   const replaceBlock = async (index: number, updates: Partial<TextBlock>) => {
     const currentBlocks = document?.textBlocks ?? []
@@ -80,6 +84,14 @@ export function useTextBlocks() {
     setSelectedBlockIndex(undefined)
   }
 
+  const requestDelete = (index: number) => setPendingDeleteIndex(index)
+  const confirmDelete = () => {
+    const index = pendingDeleteIndex
+    setPendingDeleteIndex(undefined)
+    if (index !== undefined) void removeBlock(index)
+  }
+  const cancelDelete = () => setPendingDeleteIndex(undefined)
+
   return {
     document,
     textBlocks,
@@ -91,5 +103,9 @@ export function useTextBlocks() {
     removeBlock,
     moveBlock,
     rescanTextBlock,
+    pendingDeleteIndex,
+    requestDelete,
+    confirmDelete,
+    cancelDelete,
   }
 }

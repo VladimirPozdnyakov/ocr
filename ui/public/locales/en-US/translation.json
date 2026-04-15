@@ -76,6 +76,14 @@
     "importPrompt": "Import a page to begin editing.",
     "deleteBlock": "Delete block"
   },
+  "confirm": {
+    "cancel": "Cancel",
+    "deleteBlock": {
+      "title": "Delete text block?",
+      "description": "This text block and its OCR text will be permanently removed.",
+      "confirm": "Delete"
+    }
+  },
   "statusBar": {
     "zoom": "Zoom",
     "canvas": "Canvas",

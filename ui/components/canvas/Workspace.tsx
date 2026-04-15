@@ -26,6 +26,7 @@ import { useBlockDrafting } from '@/hooks/useBlockDrafting'
 import { useBlockContextMenu } from '@/hooks/useBlockContextMenu'
 import { useTextBlocks } from '@/hooks/useTextBlocks'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
   resolvePinchMemoScaleRatio,
   resolvePinchNextScaleRatio,
@@ -46,7 +47,10 @@ export const Workspace = memo(function Workspace() {
     setSelectedBlockIndex,
     clearSelection,
     appendBlock,
-    removeBlock,
+    pendingDeleteIndex,
+    requestDelete,
+    confirmDelete,
+    cancelDelete,
   } = useTextBlocks()
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const { setScale: applyScale } = useCanvasZoom()
@@ -80,9 +84,7 @@ export const Workspace = memo(function Workspace() {
     currentDocument,
     pointerToDocument,
     selectBlock: setSelectedBlockIndex,
-    removeBlock: (index) => {
-      void removeBlock(index)
-    },
+    removeBlock: requestDelete,
   })
   const { t } = useTranslation()
 
@@ -246,6 +248,14 @@ export const Workspace = memo(function Workspace() {
   return (
     <div className='bg-background flex min-h-0 min-w-0 flex-1'>
       <div className='relative flex min-h-0 min-w-0 flex-1 flex-col'>
+        <ConfirmDialog
+          open={pendingDeleteIndex !== undefined}
+          title={t('confirm.deleteBlock.title')}
+          description={t('confirm.deleteBlock.description')}
+          confirmLabel={t('confirm.deleteBlock.confirm')}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+        />
         <CanvasToolbar />
         <ScrollAreaPrimitive.Root className='flex min-h-0 min-w-0 flex-1'>
           <ScrollAreaPrimitive.Viewport

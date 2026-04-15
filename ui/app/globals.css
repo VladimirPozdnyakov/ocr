@@ -1,5 +1,40 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-luxury-gold: var(--luxury-gold);
+  --color-luxury-gold-text: var(--luxury-gold-text);
+  --color-luxury-gold-light: var(--luxury-gold-light);
+  --color-luxury-rose: var(--luxury-rose);
+  --color-luxury-navy: var(--luxury-navy);
+  --color-luxury-sage: var(--luxury-sage);
+  --color-luxury-bronze: var(--luxury-bronze);
+  --color-luxury-ivory: var(--luxury-ivory);
+  --color-luxury-cream: var(--luxury-cream);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
 :root {
   --radius: 0.375rem;
   /* Luxury Editorial Palette - Light Mode */
@@ -37,7 +72,7 @@
   --sidebar-ring: #b8860b;
   /* Luxury Editorial Specific Colors - Enhanced Contrast */
   --luxury-gold: #b8860b;
-  --luxury-gold-text: #9a6b00;  /* Darker gold for text on light backgrounds (4.5:1+) */
+  --luxury-gold-text: #9a6b00; /* Darker gold for text on light backgrounds (4.5:1+) */
   --luxury-gold-light: #d4a017;
   --luxury-rose: #c084fc;
   --luxury-navy: #0f172a;
@@ -83,7 +118,7 @@
   --sidebar-ring: #fbbf24;
   /* Luxury Editorial Specific Colors - Dark Mode */
   --luxury-gold: #fbbf24;
-  --luxury-gold-text: #fcd34d;  /* Lighter gold for text on dark backgrounds */
+  --luxury-gold-text: #fcd34d; /* Lighter gold for text on dark backgrounds */
   --luxury-gold-light: #fcd34d;
   --luxury-rose: #a855f7;
   --luxury-navy: #f8fafc;
@@ -108,9 +143,10 @@
 
   button:focus-visible,
   a:focus-visible,
-  [role="button"]:focus-visible {
-    box-shadow: 0 0 0 2px var(--background),
-                0 0 0 4px var(--luxury-gold);
+  [role='button']:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px var(--luxury-gold);
   }
 
   /* Enhanced Link Styles */
@@ -139,11 +175,12 @@
 
   /* Interactive Elements Base Styles */
   button,
-  [role="button"],
+  [role='button'],
   input,
   textarea,
   select {
-    transition-property: color, background-color, border-color, box-shadow, transform;
+    transition-property:
+      color, background-color, border-color, box-shadow, transform;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 

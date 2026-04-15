@@ -18,7 +18,7 @@ export function TextBlockAnnotations({
   onSelect,
   style,
 }: TextBlockAnnotationsProps) {
-  const { textBlocks, replaceBlock, removeBlock } = useTextBlocks()
+  const { textBlocks, replaceBlock, requestDelete } = useTextBlocks()
   const mode = useEditorUiStore((state) => state.mode)
   const interactive = mode === 'select' || mode === 'block'
 
@@ -30,14 +30,14 @@ export function TextBlockAnnotations({
       const isEditable = target?.closest('input, textarea, [contenteditable]')
       if (isEditable) return
       event.preventDefault()
-      void removeBlock(selectedIndex)
+      requestDelete(selectedIndex)
     },
     {
       enabled: interactive,
       preventDefault: true,
       enableOnFormTags: false,
     },
-    [interactive, removeBlock, selectedIndex],
+    [interactive, requestDelete, selectedIndex],
   )
 
   return (
@@ -215,8 +215,8 @@ function TextBlockAnnotation({
         <div
           className={`absolute inset-0 rounded ${
             selected
-              ? 'border-primary bg-primary/15 border-[3px]'
-              : 'border-2 border-rose-400/60 bg-rose-400/5'
+              ? 'border-primary bg-primary/25 border-[3px]'
+              : 'border-2 border-rose-400/70 bg-rose-400/15'
           }`}
         />
         <div
