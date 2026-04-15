@@ -40,12 +40,14 @@ export const useCurrentDocumentState = () => {
   }
 }
 
+export const THUMBNAIL_STALE_MS = 10 * 60 * 1000
+
 export const useThumbnailQuery = (index: number, documentsVersion: number) =>
   useQuery({
     queryKey: queryKeys.documents.thumbnail(documentsVersion, index),
     queryFn: () => api.getThumbnail(index),
     structuralSharing: false,
-    staleTime: 60 * 1000,
+    staleTime: THUMBNAIL_STALE_MS,
   })
 
 export const useFontsQuery = () =>

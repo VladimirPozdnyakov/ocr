@@ -10,7 +10,14 @@ import {
 } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTranslation } from 'react-i18next'
-import { useDocumentsCountQuery, useThumbnailQuery } from '@/lib/query/hooks'
+import { useQueryClient } from '@tanstack/react-query'
+import {
+  useDocumentsCountQuery,
+  useThumbnailQuery,
+  THUMBNAIL_STALE_MS,
+} from '@/lib/query/hooks'
+import { queryKeys } from '@/lib/query/keys'
+import { api } from '@/lib/api'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -25,6 +32,8 @@ type PagePreviewProps = {
   onSelect: () => void
 }
 
+const THUMBNAIL_PREFETCH_RANGE = 2
+
 export const Navigator = memo(function Navigator() {
   const { data: totalPagesData = 0 } = useDocumentsCountQuery()
   const totalPages = totalPagesData ?? 0
@@ -35,6 +44,7 @@ export const Navigator = memo(function Navigator() {
   const setCurrentDocumentIndex = useEditorUiStore(
     (state) => state.setCurrentDocumentIndex,
   )
+  const queryClient = useQueryClient()
   const listRef = useRef<HTMLDivElement | null>(null)
   const indices = useMemo(
     () => Array.from({ length: totalPages }, (_, idx) => idx),
@@ -53,6 +63,23 @@ export const Navigator = memo(function Navigator() {
   useEffect(() => {
     rowVirtualizer.measure()
   }, [rowVirtualizer, totalPages, documentsVersion])
+
+  useEffect(() => {
+    for (
+      let offset = -THUMBNAIL_PREFETCH_RANGE;
+      offset <= THUMBNAIL_PREFETCH_RANGE;
+      offset++
+    ) {
+      if (offset === 0) continue
+      const idx = currentDocumentIndex + offset
+      if (idx < 0 || idx >= totalPages) continue
+      void queryClient.prefetchQuery({
+        queryKey: queryKeys.documents.thumbnail(documentsVersion, idx),
+        queryFn: () => api.getThumbnail(idx),
+        staleTime: THUMBNAIL_STALE_MS,
+      })
+    }
+  }, [currentDocumentIndex, documentsVersion, totalPages, queryClient])
 
   return (
     <div
