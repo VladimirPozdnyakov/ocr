@@ -37,7 +37,7 @@ const scheduleTextBlockFlush = () => {
           return
         }
 
-        logger.info('[syncQueues] Syncing text blocks for document:', {
+        logger.info('[syncQueues] Syncing text blocks for document', {
           index: payload.index,
           documentId: document.id,
           textBlocksCount: payload.textBlocks.length,

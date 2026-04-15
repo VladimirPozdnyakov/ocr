@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::Result;
-use image::DynamicImage;
+use image::{DynamicImage, GenericImageView};
 use koharu_types::{Document, FontPrediction, TextBlock, TextDirection};
 
 use crate::comic_text_detector::{self, ComicTextDetector, crop_text_block_bbox};
@@ -23,6 +23,13 @@ const OCR_MAX_NEW_TOKENS: usize = 128;
 const MIN_BLOCK_DIMENSION: f32 = 6.0;
 const MIN_BLOCK_AREA: f32 = 48.0;
 const BLOCK_PADDING_RATIO: f32 = 0.08;
+
+fn require_nonzero_dimensions(width: u32, height: u32, operation: &str) -> Result<()> {
+    if width == 0 || height == 0 {
+        anyhow::bail!("Cannot run {operation} on a zero-dimension image ({width}x{height})");
+    }
+    Ok(())
+}
 
 #[derive(Clone, Copy)]
 enum ColorBoundary {
@@ -103,10 +110,16 @@ impl Model {
     }
 
     fn lock_ocr(&self) -> Result<std::sync::MutexGuard<'_, PaddleOcrVl>> {
-        self.ocr.lock().map_err(|_| anyhow::anyhow!("PaddleOCR-VL mutex poisoned"))
+        self.ocr
+            .lock()
+            .map_err(|_| anyhow::anyhow!("PaddleOCR-VL mutex poisoned"))
     }
 
-    fn run_ocr(&self, images: &[DynamicImage], task: PaddleOcrVlTask) -> Result<Vec<paddleocr_vl::PaddleOcrVlOutput>> {
+    fn run_ocr(
+        &self,
+        images: &[DynamicImage],
+        task: PaddleOcrVlTask,
+    ) -> Result<Vec<paddleocr_vl::PaddleOcrVlOutput>> {
         let mut ocr = self.lock_ocr()?;
         ocr.inference_images(images, task, OCR_MAX_NEW_TOKENS)
     }
@@ -114,6 +127,8 @@ impl Model {
     /// Detect text blocks and fonts in a document.
     /// Sets `doc.text_blocks` (with font predictions/styles) and `doc.segment`.
     pub async fn detect(&self, doc: &mut Document) -> Result<()> {
+        require_nonzero_dimensions(doc.width, doc.height, "detection")?;
+
         let detect_started = Instant::now();
 
         let layout_started = Instant::now();
@@ -169,6 +184,8 @@ impl Model {
     }
 
     pub async fn ocr(&self, doc: &mut Document) -> Result<()> {
+        require_nonzero_dimensions(doc.width, doc.height, "OCR")?;
+
         if doc.text_blocks.is_empty() {
             return Ok(());
         }
@@ -204,6 +221,11 @@ impl Model {
     }
 
     pub async fn ocr_text_block(&self, image: &DynamicImage, block: &mut TextBlock) -> Result<()> {
+        let (img_w, img_h) = image.dimensions();
+        require_nonzero_dimensions(img_w, img_h, "OCR")?;
+
+        koharu_types::validate_text_block_geometry(block.x, block.y, block.width, block.height)?;
+
         let ocr_started = Instant::now();
 
         let crop = crop_text_block_bbox(image, block);
@@ -228,6 +250,11 @@ impl Model {
     }
 
     pub async fn detect_font(&self, image: &DynamicImage, top_k: usize) -> Result<FontPrediction> {
+        require_nonzero_dimensions(image.width(), image.height(), "font detection")?;
+        if top_k == 0 {
+            anyhow::bail!("top_k must be at least 1");
+        }
+
         let mut results = self
             .detect_fonts(std::slice::from_ref(image), top_k)
             .await?;

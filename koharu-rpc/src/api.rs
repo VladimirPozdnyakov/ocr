@@ -221,10 +221,24 @@ async fn import_documents(
             .file_name()
             .map(str::to_string)
             .unwrap_or_else(|| "upload.bin".to_string());
+
+        // Validate file extension before reading the body.
+        let ext = std::path::Path::new(&filename)
+            .extension()
+            .and_then(|e| e.to_str())
+            .unwrap_or("");
+        if !ext.is_empty() && !koharu_types::is_supported_image_extension(ext) {
+            return Err(ApiError::bad_request(format!(
+                "Unsupported file format: {filename}. Supported formats: {}",
+                koharu_types::SUPPORTED_EXTENSIONS.join(", ")
+            )));
+        }
+
         let data = field
             .bytes()
             .await
             .map_err(|error| ApiError::bad_request(error.to_string()))?;
+
         files.push(FileEntry {
             name: filename,
             data: data.to_vec(),
@@ -282,8 +296,21 @@ async fn create_text_block(
     Path(document_id): Path<String>,
     Json(request): Json<CreateTextBlock>,
 ) -> ApiResult<Json<TextBlockDetail>> {
+    koharu_types::validate_text_block_geometry(request.x, request.y, request.width, request.height)
+        .map_err(|e| ApiError::bad_request(e.to_string()))?;
+
     let resources = state.resources()?;
-    let (index, _) = find_document(&resources, &document_id).await?;
+    let (index, document) = find_document(&resources, &document_id).await?;
+
+    // Validate block fits within document bounds.
+    if request.x + request.width > document.width as f32
+        || request.y + request.height > document.height as f32
+    {
+        return Err(ApiError::bad_request(format!(
+            "Text block ({}, {} + {}x{}) exceeds document bounds ({}x{})",
+            request.x, request.y, request.width, request.height, document.width, document.height
+        )));
+    }
 
     let detail = state_tx::mutate_doc(
         &resources.state,
@@ -583,15 +610,6 @@ async fn find_document(
     Ok((index, document))
 }
 
-#[allow(dead_code)]
-fn find_text_block_index(document: &Document, text_block_id: &str) -> ApiResult<usize> {
-    document
-        .text_blocks
-        .iter()
-        .position(|block| block.id == text_block_id)
-        .ok_or_else(|| ApiError::not_found(format!("Text block not found: {text_block_id}")))
-}
-
 fn encode_webp(image: &SerializableDynamicImage) -> ApiResult<Vec<u8>> {
     let mut cursor = Cursor::new(Vec::new());
     image
@@ -618,6 +636,22 @@ fn binary_response(data: Vec<u8>, content_type: &str, filename: Option<String>) 
 fn apply_text_block_patch(block: &mut TextBlock, patch: TextBlockPatch) {
     let previous_width = block.width;
     let previous_height = block.height;
+
+    let pending_x = patch.x.unwrap_or(block.x);
+    let pending_y = patch.y.unwrap_or(block.y);
+    let pending_width = patch.width.unwrap_or(block.width);
+    let pending_height = patch.height.unwrap_or(block.height);
+
+    if let Err(err) = koharu_types::validate_text_block_geometry(
+        pending_x,
+        pending_y,
+        pending_width,
+        pending_height,
+    ) {
+        tracing::warn!(?err, "Rejecting text block patch with invalid geometry");
+        return;
+    }
+
     let mut geometry_changed = false;
 
     if let Some(x) = patch.x {

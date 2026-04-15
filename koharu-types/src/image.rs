@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use ::image::{ColorType, DynamicImage, codecs::webp::WebPEncoder};
+use image::{ColorType, DynamicImage, codecs::webp::WebPEncoder};
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Debug, Default, Clone)]

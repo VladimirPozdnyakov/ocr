@@ -36,18 +36,45 @@ pub fn load_documents(inputs: Vec<(PathBuf, Vec<u8>)>) -> anyhow::Result<Vec<Doc
         return Ok(vec![]);
     }
 
-    let mut documents: Vec<_> = inputs
+    let results: Vec<Result<Vec<Document>, (String, anyhow::Error)>> = inputs
         .into_par_iter()
-        .filter_map(|(path, bytes)| match Document::from_bytes(path, bytes) {
-            Ok(docs) => Some(docs),
-            Err(err) => {
-                tracing::warn!(?err, "Failed to parse document");
-                None
-            }
+        .map(|(path, bytes)| {
+            let name = path.to_string_lossy().to_string();
+            Document::from_bytes(path, bytes).map_err(|err| (name, err))
         })
-        .flatten()
         .collect();
 
+    let mut documents = Vec::new();
+    let mut errors = Vec::new();
+
+    for result in results {
+        match result {
+            Ok(docs) => documents.extend(docs),
+            Err((name, err)) => {
+                tracing::warn!(?err, "Failed to parse document");
+                errors.push(format!("{name}: {err:#}"));
+            }
+        }
+    }
+
     documents.sort_by_key(|doc| doc.name.clone());
+
+    if documents.is_empty() && !errors.is_empty() {
+        anyhow::bail!(
+            "All {} file(s) failed to load:\n{}",
+            errors.len(),
+            errors.join("\n")
+        );
+    }
+
+    if !errors.is_empty() {
+        tracing::warn!(
+            "Loaded {} document(s), {} failed: {}",
+            documents.len(),
+            errors.len(),
+            errors.join("; ")
+        );
+    }
+
     Ok(documents)
 }

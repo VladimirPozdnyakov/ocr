@@ -44,9 +44,23 @@ fn has_stable_content_identity(a: &TextBlock, b: &TextBlock) -> bool {
 
 #[inline]
 fn get_layout_seed(block: &TextBlock) -> (f32, f32, f32, f32) {
-    match (block.layout_seed_x, block.layout_seed_y, block.layout_seed_width, block.layout_seed_height) {
-        (Some(x), Some(y), Some(w), Some(h)) if w.is_finite() && h.is_finite() && w > 0.0 && h > 0.0 => (x, y, w, h),
-        _ => (block.x, block.y, block.width.max(1.0), block.height.max(1.0)),
+    match (
+        block.layout_seed_x,
+        block.layout_seed_y,
+        block.layout_seed_width,
+        block.layout_seed_height,
+    ) {
+        (Some(x), Some(y), Some(w), Some(h))
+            if w.is_finite() && h.is_finite() && w > 0.0 && h > 0.0 =>
+        {
+            (x, y, w, h)
+        }
+        _ => (
+            block.x,
+            block.y,
+            block.width.max(1.0),
+            block.height.max(1.0),
+        ),
     }
 }
 

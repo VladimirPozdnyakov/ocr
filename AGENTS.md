@@ -1,119 +1,77 @@
 # AGENTS.md
 
-Context for AI assistants working on the Koharu codebase.
+Koharu (Lilith Edition) — ML-powered manga translator. Fork of [mayocream/koharu](https://github.com/mayocream/koharu).
 
-## Project Overview
+## Build & Run
 
-Koharu is an ML-powered manga translator written in Rust with a Next.js/React frontend.
+```bash
+bun install
+bun run --cwd ui build          # must run before cargo, generates static export to ui/out/
+cargo run --release              # serves UI + API on http://127.0.0.1:3000
+```
 
-**Tech Stack:**
+Dev mode (hot reload): run `bun run --cwd ui dev` and `cargo run --release` in separate terminals.
 
-- Backend: Rust (Axum HTTP server, Candle for ML inference)
-- Frontend: React 19, Next.js 16, Tailwind CSS 4, Zustand
-- Build: Bun, Cargo
-- Tests: Playwright (E2E), Vitest (UI unit tests), Rust native tests
+CLI flags: `--port PORT`, `--host 0.0.0.0`, `--cpu` (force CPU inference), `--download` (fetch models only).
+
+## Verification (run in this order)
+
+Rust:
+
+```bash
+cargo fmt --all --check         # CI uses --all
+cargo clippy -- -D warnings     # CI enforces -D warnings
+cargo test -- --skip ignored_tests  # ML tests needing models are #[ignore]
+```
+
+UI:
+
+```bash
+bun run --cwd ui typecheck
+bun run --cwd ui lint
+bun run --cwd ui test           # Vitest, jsdom, setup in ui/test/setup.ts
+```
+
+E2E (requires running server):
+
+```bash
+bun run test:e2e                # Playwright, sequential (workers: 1), 120s timeout
+```
 
 ## Architecture
 
-### Rust Workspace Crates
+**Rust workspace** (9 crates, edition 2024, resolver 3, `default-members = ["koharu"]`):
 
-| Crate             | Purpose                                        |
-| ----------------- | ---------------------------------------------- |
-| `koharu`          | Main application (HTTP server entry point)     |
-| `koharu-ml`       | ML models: OCR, detection, inpainting (Candle) |
-| `koharu-pipeline` | Processing pipeline orchestration              |
-| `koharu-runtime`  | CUDA/runtime library loading                   |
-| `koharu-http`     | HTTP utilities                                 |
-| `koharu-rpc`      | HTTP API server                                |
-| `koharu-types`    | Shared types (TS-RS bindings)                  |
-| `koharu-renderer` | Text rendering engine                          |
-| `koharu-psd`      | PSD export functionality                       |
+- `koharu` — entry point, CLI, wires all crates together
+- `koharu-rpc` — Axum HTTP + WebSocket API (multipart, ws)
+- `koharu-ml` — ML models via Candle (features: `cuda`, `metal`; standalone bins in `koharu-ml/bin/`)
+- `koharu-pipeline` — processing orchestration
+- `koharu-types` — shared types with `#[ts(export)]` → generates `ui/lib/generated/protocol/*.ts`
+- `koharu-renderer` — text rendering engine
+- `koharu-psd` — PSD export
+- `koharu-runtime` — CUDA/Metal runtime loading
+- `koharu-http` — HTTP utilities
 
-### Frontend Structure
+**Frontend** (`ui/`): Next.js 16 static export (`output: 'export'`), React 19 + React Compiler, Tailwind CSS 4, Zustand 5, TanStack Query, Radix UI, i18next. Path alias `@/*` → `ui/`.
 
-```
-ui/
-├── app/              # Next.js app router pages
-├── components/        # React components
-│   ├── canvas/       # Canvas/workspace components
-│   ├── panels/       # Side panel components
-│   └── ui/           # Radix UI primitives
-├── lib/
-│   ├── stores/       # Zustand stores
-│   ├── query/        # TanStack Query hooks
-│   └── generated/    # TS types from ts-rs
-└── hooks/            # Custom React hooks
-```
+## Critical Details
 
-## Development Commands
+- **Patched Candle**: workspace patches `candle-core/nn/transformers` and `ug/ug-cuda` to a custom fork (`cuda-dynamic-loading` branch). Do not upgrade these without checking the patch section in `Cargo.toml`.
+- **ts-rs codegen**: `koharu-types` structs annotated `#[ts(export)]` auto-generate TS types into `ui/lib/generated/protocol/`. These are committed but ESLint ignores `lib/generated/`. If you change `koharu-types` Rust structs, rebuild to regenerate TS bindings.
+- **Static export**: UI builds to `ui/out/` (not `.next/`). The Rust server serves these as static files.
+- **CUDA dynamic loading**: CUDA toolkit 13.1 + cuDNN libs are extracted at runtime to the app data dir. `koharu-runtime` handles this. `--cpu` bypasses GPU entirely.
+- **Rust edition 2024**: uses newer edition features.
+- **dev opt-level overrides**: `image` and `imageproc` are built with `opt-level = 3` even in dev profile.
 
-```bash
-# Install dependencies
-bun install
+## Testing Quirks
 
-# Build UI
-bun run --cwd ui build
+- ML tests in `koharu-ml/tests/` that need downloaded models are `#[ignore]`. Always use `--skip ignored_tests` unless you've run `--download` first.
+- `comic_text_detector.rs` and `manga_text_segmentation_2025.rs` tests are NOT ignored but still need models — they may fail without prior model download.
+- E2E tests use `playwright.config.ts` webServer: `bun run dev -- --headless`, checking `http://127.0.0.1:9999/api/v1/meta` for readiness.
+- E2E tests run sequentially (1 worker), 120s timeout per test.
 
-# Run server (default: http://127.0.0.1:3000)
-cargo run --release
+## Style Conventions
 
-# Run with custom port/host
-cargo run --release -- --port 8080 --host 0.0.0.0
-
-# Force CPU mode
-cargo run --release -- --cpu
-
-# Download models only
-cargo run --release -- --download
-
-# Format UI code
-bun run format
-
-# Run E2E tests
-bun run test:e2e
-
-# Rust checks
-cargo fmt --check
-cargo clippy
-cargo test -- --skip ignored_tests
-
-# UI checks
-bun run --cwd ui typecheck
-bun run --cwd ui lint
-bun run --cwd ui test
-```
-
-## Key Patterns
-
-### Rust
-
-- Use `anyhow::Result` for fallible operations
-- `Arc<RwLock<T>>` for shared state
-- `tracing` for logging
-- GPU device selection: CUDA > Metal > CPU fallback
-
-### TypeScript
-
-- Zustand stores with persist middleware
-- TanStack Query for server state
-- Radix UI primitives for components
-- ts-rs generates types from Rust structs
-
-## Testing
-
-- Rust tests in `koharu-ml/tests/` (many require models, marked `#[ignore]`)
-- E2E tests in `e2e/*.spec.ts` (Playwright)
-- Unit tests in `ui/**/*.test.ts` (Vitest)
-- Run unit tests with `cargo test -- --skip ignored_tests`
-
-## GPU Acceleration
-
-- CUDA 13.1+ for NVIDIA GPUs
-- Metal for Apple Silicon
-- CPU fallback via `--cpu` flag
-
-## Running
-
-1. Build the UI: `bun run --cwd ui build`
-2. Run the server: `cargo run --release`
-3. Open browser: `http://127.0.0.1:3000`
+- Rust: `anyhow::Result`, `Arc<RwLock<T>>` for shared state, `tracing` crate for logging
+- TS: unused vars prefixed with `_` (ESLint `varsIgnorePattern: '^_'`), `no-explicit-any: warn`
+- UI formatting: `bun run format` (Prettier with `prettier-plugin-tailwindcss`)
