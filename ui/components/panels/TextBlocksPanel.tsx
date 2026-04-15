@@ -302,11 +302,11 @@ const BlockCard = memo(
                         onRescan()
                       }}
                       disabled={isRescanning}
-                      className='text-muted-foreground hover:text-luxury-gold rounded p-1 transition-colors disabled:opacity-50'
+                      className='text-muted-foreground hover:text-luxury-gold flex size-[44px] items-center justify-center rounded transition-colors disabled:opacity-50'
                       aria-label={t('textBlocks.rescan')}
                     >
                       <RefreshCwIcon
-                        className={`size-3.5 ${isRescanning ? 'animate-spin' : ''}`}
+                        className={`size-4 ${isRescanning ? 'animate-spin' : ''}`}
                       />
                     </button>
                   </TooltipTrigger>
