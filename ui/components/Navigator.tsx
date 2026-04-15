@@ -1,6 +1,13 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, memo } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  memo,
+} from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useTranslation } from 'react-i18next'
 import { useDocumentsCountQuery, useThumbnailQuery } from '@/lib/query/hooks'
@@ -121,69 +128,76 @@ export const Navigator = memo(function Navigator() {
   )
 })
 
-function PagePreview({
-  index,
-  documentsVersion,
-  selected,
-  onSelect,
-}: PagePreviewProps) {
-  const [preview, setPreview] = useState<string>()
-  const {
-    data: thumbnailBlob,
-    isPending: loading,
-    isError: error,
-  } = useThumbnailQuery(index, documentsVersion)
+const PagePreview = memo(
+  function PagePreview({
+    index,
+    documentsVersion,
+    selected,
+    onSelect,
+  }: PagePreviewProps) {
+    const [preview, setPreview] = useState<string>()
+    const {
+      data: thumbnailBlob,
+      isPending: loading,
+      isError: error,
+    } = useThumbnailQuery(index, documentsVersion)
 
-  useLayoutEffect(() => {
-    if (!thumbnailBlob) {
-      setPreview(undefined)
-      return
-    }
-    const url = URL.createObjectURL(thumbnailBlob)
-    cancelObjectUrlRevoke(url)
-    setPreview(url)
-    return () => {
-      revokeObjectUrlLater(url)
-    }
-  }, [thumbnailBlob])
+    useLayoutEffect(() => {
+      if (!thumbnailBlob) {
+        setPreview(undefined)
+        return
+      }
+      const url = URL.createObjectURL(thumbnailBlob)
+      cancelObjectUrlRevoke(url)
+      setPreview(url)
+      return () => {
+        revokeObjectUrlLater(url)
+      }
+    }, [thumbnailBlob])
 
-  return (
-    <Button
-      variant='ghost'
-      onClick={onSelect}
-      data-testid={`navigator-page-${index}`}
-      data-page-index={index}
-      data-selected={selected}
-      className='luxury-border luxury-shadow bg-card data-[selected=true]:luxury-shadow-xl data-[selected=true]:bg-luxury-gold data-[selected=true]:text-background active:scale-95 cursor-pointer flex h-auto min-h-[44px] flex-col gap-2 rounded-sm border p-3 text-left transition-all duration-150 hover:shadow-lg'
-    >
-      {loading ? (
-        <div className='luxury-border bg-muted relative aspect-3/4 w-full overflow-hidden rounded-sm'>
-          <div className='absolute inset-0 luxury-shimmer bg-gradient-to-r from-transparent via-luxury-gold/10 to-transparent' />
-          <div className='absolute inset-0 flex items-center justify-center'>
-            <LoaderCircleIcon className='text-luxury-gold/50 size-8 animate-spin' />
+    return (
+      <Button
+        variant='ghost'
+        onClick={onSelect}
+        data-testid={`navigator-page-${index}`}
+        data-page-index={index}
+        data-selected={selected}
+        className='luxury-border luxury-shadow bg-card data-[selected=true]:luxury-shadow-xl data-[selected=true]:bg-luxury-gold data-[selected=true]:text-background flex h-auto min-h-[44px] cursor-pointer flex-col gap-2 rounded-sm border p-3 text-left transition-all duration-150 hover:shadow-lg active:scale-95'
+      >
+        {loading ? (
+          <div className='luxury-border bg-muted relative aspect-3/4 w-full overflow-hidden rounded-sm'>
+            <div className='luxury-shimmer via-luxury-gold/10 absolute inset-0 bg-gradient-to-r from-transparent to-transparent' />
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <LoaderCircleIcon className='text-luxury-gold/50 size-8 animate-spin' />
+            </div>
+          </div>
+        ) : error ? (
+          <div className='luxury-border bg-luxury-rose/10 flex aspect-3/4 w-full items-center justify-center rounded-sm'>
+            <span className='text-luxury-rose font-poppins text-lg'>?</span>
+          </div>
+        ) : preview ? (
+          <div className='luxury-border overflow-hidden rounded-sm'>
+            <img
+              src={preview}
+              alt={`Page ${index + 1}`}
+              loading='lazy'
+              className='aspect-3/4 w-full rounded-sm object-cover'
+            />
+          </div>
+        ) : (
+          <div className='bg-muted luxury-dots aspect-3/4 w-full rounded-sm' />
+        )}
+        <div className='text-muted-foreground flex flex-1 items-center text-xs'>
+          <div className='luxury-border luxury-shadow bg-luxury-gold-text text-background font-poppins mx-auto flex size-6 items-center justify-center rounded-full text-center font-semibold'>
+            {index + 1}
           </div>
         </div>
-      ) : error ? (
-        <div className='luxury-border bg-luxury-rose/10 flex aspect-3/4 w-full items-center justify-center rounded-sm'>
-          <span className='text-luxury-rose font-poppins text-lg'>?</span>
-        </div>
-      ) : preview ? (
-        <div className='luxury-border overflow-hidden rounded-sm'>
-          <img
-            src={preview}
-            alt={`Page ${index + 1}`}
-            loading='lazy'
-            className='aspect-3/4 w-full rounded-sm object-cover'
-          />
-        </div>
-      ) : (
-        <div className='bg-muted luxury-dots aspect-3/4 w-full rounded-sm' />
-      )}
-      <div className='text-muted-foreground flex flex-1 items-center text-xs'>
-        <div className='luxury-border luxury-shadow bg-luxury-gold-text text-background font-poppins mx-auto flex size-6 items-center justify-center rounded-full text-center font-semibold'>
-          {index + 1}
-        </div>
-      </div>
-    </Button>
-  )
-}
+      </Button>
+    )
+  },
+  (prev, next) =>
+    prev.index === next.index &&
+    prev.documentsVersion === next.documentsVersion &&
+    prev.selected === next.selected,
+  // onSelect is excluded: it captures only stable refs (setCurrentDocumentIndex, idx)
+)
