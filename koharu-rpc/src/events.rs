@@ -52,12 +52,17 @@ impl EventHub {
     }
 
     pub async fn snapshot(&self) -> anyhow::Result<SnapshotEvent> {
-        let resources = get_resources(&self.inner.shared)?;
-        let documents = state_tx::list_docs(&resources.state)
-            .await
-            .iter()
-            .map(DocumentSummary::from)
-            .collect();
+        let documents = match get_resources(&self.inner.shared) {
+            Ok(resources) => state_tx::list_docs(&resources.state)
+                .await
+                .iter()
+                .map(DocumentSummary::from)
+                .collect(),
+            Err(err) => {
+                tracing::debug!(?err, "Resources not yet initialized for snapshot");
+                Vec::new()
+            }
+        };
 
         let mut jobs = self
             .inner

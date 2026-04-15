@@ -40,6 +40,7 @@ const MAX_BODY_SIZE: usize = 1024 * 1024 * 1024;
 pub struct ApiState {
     pub resources: SharedResources,
     pub events: EventHub,
+    pub version: &'static str,
 }
 
 impl ApiState {
@@ -48,8 +49,12 @@ impl ApiState {
     }
 }
 
-pub fn router(resources: SharedResources, events: EventHub) -> Router {
-    let state = ApiState { resources, events };
+pub fn router(resources: SharedResources, events: EventHub, version: &'static str) -> Router {
+    let state = ApiState {
+        resources,
+        events,
+        version,
+    };
 
     Router::new()
         .route("/meta", get(get_meta))
@@ -139,13 +144,29 @@ struct ImportQuery {
     mode: Option<koharu_types::ImportMode>,
 }
 
-async fn get_meta(State(state): State<ApiState>) -> ApiResult<Json<MetaInfo>> {
-    let resources = state.resources()?;
-    let device = operations::device(resources.clone()).await?;
-    Ok(Json(MetaInfo {
-        version: resources.version.to_string(),
-        ml_device: device.ml_device,
-    }))
+async fn get_meta(State(state): State<ApiState>) -> Json<MetaInfo> {
+    let version = state.version.to_string();
+    match state.resources() {
+        Ok(resources) => {
+            let ml_device = operations::device(resources.clone())
+                .await
+                .map(|d| d.ml_device)
+                .unwrap_or_else(|err| {
+                    tracing::warn!(?err, "Failed to detect ML device");
+                    String::new()
+                });
+            Json(MetaInfo {
+                version,
+                ml_device,
+                models_ready: true,
+            })
+        }
+        Err(_) => Json(MetaInfo {
+            version,
+            ml_device: String::new(),
+            models_ready: false,
+        }),
+    }
 }
 
 async fn list_documents(State(state): State<ApiState>) -> ApiResult<Json<Vec<DocumentSummary>>> {

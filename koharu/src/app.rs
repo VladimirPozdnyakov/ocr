@@ -132,6 +132,12 @@ async fn build_resources(cpu: bool) -> Result<AppResources> {
         tracing::info!("CUDA is available and runtime packages were initialized");
     }
 
+    tracing::info!("Prefetching model files...");
+    koharu_ml::facade::prefetch()
+        .await
+        .context("Failed to prefetch model files")?;
+    tracing::info!("Model files ready, loading into device...");
+
     let ml = Arc::new(
         koharu_ml::facade::Model::new(cpu, None)
             .await
@@ -174,8 +180,10 @@ pub async fn run() -> Result<()> {
 
     tokio::spawn({
         let shared = shared.clone();
+        let version = crate::version::current();
         async move {
-            if let Err(err) = server::serve_with_listener(listener, shared, resolver).await {
+            if let Err(err) = server::serve_with_listener(listener, shared, resolver, version).await
+            {
                 tracing::error!("Server error: {err:#}");
             }
         }

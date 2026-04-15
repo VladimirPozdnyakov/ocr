@@ -3,7 +3,7 @@ use std::{
     time::Instant,
 };
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use image::{DynamicImage, GenericImageView};
 use koharu_types::{Document, FontPrediction, TextBlock, TextDirection};
 
@@ -279,11 +279,20 @@ impl Model {
 }
 
 pub async fn prefetch() -> Result<()> {
-    pp_doclayout_v3::prefetch().await?;
-    comic_text_detector::prefetch_segmentation().await?;
-    paddleocr_vl::prefetch().await?;
-    font_detector::prefetch().await?;
-
+    let (layout, segmenter, ocr, font) = tokio::join!(
+        async { pp_doclayout_v3::prefetch().await.context("layout detector") as Result<()> },
+        async {
+            comic_text_detector::prefetch_segmentation()
+                .await
+                .context("text segmenter") as Result<()>
+        },
+        async { paddleocr_vl::prefetch().await.context("OCR engine") as Result<()> },
+        async { font_detector::prefetch().await.context("font detector") as Result<()> },
+    );
+    layout?;
+    segmenter?;
+    ocr?;
+    font?;
     Ok(())
 }
 

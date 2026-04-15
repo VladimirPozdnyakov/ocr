@@ -31,12 +31,16 @@ where
     Arc::new(move |path: &str| resolvers.iter().find_map(|resolver| resolver(path)))
 }
 
-fn build_router(shared: SharedResources, resolver: SharedAssetResolver) -> Router {
+fn build_router(
+    shared: SharedResources,
+    resolver: SharedAssetResolver,
+    version: &'static str,
+) -> Router {
     let events = EventHub::new(shared.clone());
     let cors = CorsLayer::very_permissive();
 
     Router::new()
-        .nest("/api/v1", api::router(shared.clone(), events))
+        .nest("/api/v1", api::router(shared.clone(), events, version))
         .layer(cors)
         .fallback(move |uri: Uri| {
             let resolver = resolver.clone();
@@ -70,8 +74,9 @@ pub async fn serve_with_listener(
     listener: TcpListener,
     shared: SharedResources,
     resolver: SharedAssetResolver,
+    version: &'static str,
 ) -> Result<()> {
-    let router = build_router(shared, resolver);
+    let router = build_router(shared, resolver, version);
     tracing::info!("HTTP server listening on http://{}", listener.local_addr()?);
     axum::serve(listener, router.into_make_service()).await?;
     Ok(())

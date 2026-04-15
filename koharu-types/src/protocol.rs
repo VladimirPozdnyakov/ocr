@@ -18,6 +18,7 @@ pub struct FontFaceInfo {
 pub struct MetaInfo {
     pub version: String,
     pub ml_device: String,
+    pub models_ready: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, TS)]
