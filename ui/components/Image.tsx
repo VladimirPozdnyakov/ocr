@@ -1,7 +1,6 @@
 'use client'
 
-import type { CSSProperties } from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   cancelObjectUrlRevoke,
   convertToBlob,
@@ -29,166 +28,77 @@ export function Image({
   ...props
 }: ImageProps) {
   const dataDep = dataKey ?? data
-
-  const [plainSrc, setPlainSrc] = useState<string | null>(null)
-  const [currentSrc, setCurrentSrc] = useState<string | null>(null)
-  const [nextSrc, setNextSrc] = useState<string | null>(null)
-  const [crossfade, setCrossfade] = useState(false)
-
-  const currentSrcRef = useRef<string | null>(null)
-  const nextSrcRef = useRef<string | null>(null)
-
-  const cleanupUrl = useCallback((url: string | null) => {
-    revokeObjectUrlLater(url)
-  }, [])
+  const [src, setSrc] = useState<string | undefined>()
+  const [incoming, setIncoming] = useState<string | undefined>()
+  const srcRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
-    currentSrcRef.current = currentSrc
-  }, [currentSrc])
-
-  useEffect(() => {
-    nextSrcRef.current = nextSrc
-  }, [nextSrc])
-
-  useEffect(() => {
-    return () => {
-      cleanupUrl(currentSrcRef.current)
-      cleanupUrl(nextSrcRef.current)
-    }
-  }, [cleanupUrl])
-
-  const promoteNext = useCallback(() => {
-    const incoming = nextSrcRef.current
-    if (!incoming) return
-    const outgoing = currentSrcRef.current
-
-    currentSrcRef.current = incoming
-    setCurrentSrc(incoming)
-    setNextSrc(null)
-    setCrossfade(false)
-
-    if (outgoing && outgoing !== incoming) {
-      cleanupUrl(outgoing)
-    }
-  }, [cleanupUrl])
-
-  useEffect(() => {
-    if (!transition) {
-      if (!dataDep || !data) {
-        setPlainSrc(null)
-        return
-      }
-      const blob = convertToBlob(data)
-      const url = URL.createObjectURL(blob)
-      cancelObjectUrlRevoke(url)
-      setPlainSrc(url)
-      return () => revokeObjectUrlLater(url)
-    }
-    setPlainSrc(null)
-    return
-  }, [data, dataDep, transition])
-
-  useEffect(() => {
-    if (transition) return
-    cleanupUrl(currentSrcRef.current)
-    cleanupUrl(nextSrcRef.current)
-    currentSrcRef.current = null
-    nextSrcRef.current = null
-    setCurrentSrc(null)
-    setNextSrc(null)
-    setCrossfade(false)
-  }, [transition, cleanupUrl])
-
-  useEffect(() => {
-    if (!transition) return
     if (!dataDep || !data) {
-      cleanupUrl(currentSrcRef.current)
-      cleanupUrl(nextSrcRef.current)
-      currentSrcRef.current = null
-      nextSrcRef.current = null
-      setCurrentSrc(null)
-      setNextSrc(null)
-      setCrossfade(false)
+      revokeObjectUrlLater(srcRef.current)
+      srcRef.current = undefined
+      setSrc(undefined)
+      setIncoming(undefined)
       return
     }
 
     const blob = convertToBlob(data)
-    const objectUrl = URL.createObjectURL(blob)
-    cancelObjectUrlRevoke(objectUrl)
-    let cancelled = false
+    const url = URL.createObjectURL(blob)
+    cancelObjectUrlRevoke(url)
 
+    if (!transition) {
+      revokeObjectUrlLater(srcRef.current)
+      srcRef.current = url
+      setSrc(url)
+      setIncoming(undefined)
+      return () => {
+        revokeObjectUrlLater(url)
+        if (srcRef.current === url) srcRef.current = undefined
+      }
+    }
+
+    let cancelled = false
     const preload = new window.Image()
     preload.onload = () => {
       if (cancelled) {
-        cleanupUrl(objectUrl)
+        revokeObjectUrlLater(url)
         return
       }
-
-      if (!currentSrcRef.current) {
-        currentSrcRef.current = objectUrl
-        setCurrentSrc(objectUrl)
-        return
+      if (!srcRef.current) {
+        srcRef.current = url
+        cancelObjectUrlRevoke(url)
+        setSrc(url)
+      } else {
+        cancelObjectUrlRevoke(url)
+        setIncoming(url)
       }
-
-      setNextSrc((prev) => {
-        if (prev && prev !== currentSrcRef.current) {
-          cleanupUrl(prev)
-        }
-        return objectUrl
-      })
-
-      setCrossfade(false)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setCrossfade(true))
-      })
     }
-
-    preload.src = objectUrl
+    preload.src = url
 
     return () => {
       cancelled = true
-      if (
-        objectUrl !== currentSrcRef.current &&
-        objectUrl !== nextSrcRef.current
-      ) {
-        cleanupUrl(objectUrl)
+      if (srcRef.current !== url) {
+        revokeObjectUrlLater(url)
       }
     }
-  }, [data, dataDep, cleanupUrl, transition])
+  }, [data, dataDep, transition])
 
-  useEffect(() => {
-    if (!transition) return
-    if (!nextSrc || !crossfade) return
-    const timeout = window.setTimeout(promoteNext, FADE_DURATION_MS + 50)
-    return () => window.clearTimeout(timeout)
-  }, [nextSrc, crossfade, promoteNext, transition])
-
-  if (!transition) {
-    if (!visible || !plainSrc) return null
-    return (
-      <img
-        {...props}
-        alt={alt}
-        src={plainSrc}
-        draggable={false}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          userSelect: 'none',
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
-          ...style,
-          opacity,
-        }}
-      />
-    )
+  const promoteIncoming = () => {
+    if (!incoming) return
+    revokeObjectUrlLater(srcRef.current)
+    srcRef.current = incoming
+    setSrc(incoming)
+    setIncoming(undefined)
   }
 
-  if (!visible || (!currentSrc && !nextSrc)) return null
+  useEffect(() => {
+    return () => {
+      revokeObjectUrlLater(srcRef.current)
+    }
+  }, [])
 
-  const baseStyle: CSSProperties = {
+  if (!visible) return null
+
+  const baseStyle: React.CSSProperties = {
     position: 'absolute',
     inset: 0,
     pointerEvents: 'none',
@@ -199,35 +109,49 @@ export function Image({
     ...style,
   }
 
+  if (!transition) {
+    if (!src) return null
+    return (
+      <img
+        {...props}
+        alt={alt}
+        src={src}
+        draggable={false}
+        style={{ ...baseStyle, opacity }}
+      />
+    )
+  }
+
+  if (!src && !incoming) return null
+
   return (
     <>
-      {currentSrc && (
+      {src && (
         <img
           {...props}
           alt={alt}
-          src={currentSrc}
+          src={src}
           draggable={false}
           style={{
             ...baseStyle,
-            opacity: nextSrc ? (crossfade ? 0 : opacity) : opacity,
-            transition:
-              nextSrc && crossfade
-                ? `opacity ${FADE_DURATION_MS}ms ease`
-                : undefined,
+            opacity: incoming ? 0 : opacity,
+            transition: incoming
+              ? `opacity ${FADE_DURATION_MS}ms ease`
+              : undefined,
           }}
         />
       )}
-      {nextSrc && (
+      {incoming && (
         <img
           {...props}
           alt={alt}
-          src={nextSrc}
+          src={incoming}
           draggable={false}
-          onTransitionEnd={promoteNext}
+          onAnimationEnd={promoteIncoming}
           style={{
             ...baseStyle,
-            opacity: crossfade ? opacity : 0,
-            transition: `opacity ${FADE_DURATION_MS}ms ease`,
+            opacity,
+            animation: `image-crossfade-in ${FADE_DURATION_MS}ms ease`,
           }}
         />
       )}

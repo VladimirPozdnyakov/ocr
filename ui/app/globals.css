@@ -237,6 +237,12 @@
   }
 }
 
+@keyframes image-crossfade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 .activity-progress-indeterminate {
   animation: activity-progress-indeterminate 2s linear infinite;
   will-change: transform;
