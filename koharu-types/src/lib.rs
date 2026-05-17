@@ -59,57 +59,91 @@ pub fn validate_image_bytes(bytes: &[u8]) -> anyhow::Result<()> {
         );
     }
 
-    // Check magic bytes for known image formats.
-    let magic = &bytes[..bytes.len().min(12)];
-    let valid = magic.len() >= 4
-        && (is_jpeg(magic)
-            || is_png(magic)
-            || is_gif(magic)
-            || is_bmp(magic)
-            || is_webp(magic)
-            || is_tiff_le(magic)
-            || is_tiff_be(magic)
-            || is_avif_heif(magic)
-            || is_ico(magic));
-    if !valid {
+    if !magic_bytes::is_supported_format(bytes) {
         anyhow::bail!(
             "Unrecognized image format (magic bytes: {:02x?})",
-            &magic[..magic.len().min(8)]
+            &bytes[..bytes.len().min(8)]
         );
     }
     Ok(())
 }
 
-fn is_jpeg(m: &[u8]) -> bool {
-    m.len() >= 3 && m[0] == 0xFF && m[1] == 0xD8 && m[2] == 0xFF
-}
-fn is_png(m: &[u8]) -> bool {
-    m.len() >= 8 && m[..8] == [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
-}
-fn is_gif(m: &[u8]) -> bool {
-    m.len() >= 6 && (m[..6] == *b"GIF87a" || m[..6] == *b"GIF89a")
-}
-fn is_bmp(m: &[u8]) -> bool {
-    m.len() >= 2 && m[0] == 0x42 && m[1] == 0x4D
-}
-fn is_webp(m: &[u8]) -> bool {
-    m.len() >= 12 && m[8..12] == *b"WEBP" && m[..4] == [0x52, 0x49, 0x46, 0x46]
-}
-fn is_tiff_le(m: &[u8]) -> bool {
-    m.len() >= 4 && m[0] == 0x49 && m[1] == 0x49 && m[2] == 0x2A && m[3] == 0x00
-}
-fn is_tiff_be(m: &[u8]) -> bool {
-    m.len() >= 4 && m[0] == 0x4D && m[1] == 0x4D && m[2] == 0x00 && m[3] == 0x2A
-}
-fn is_avif_heif(m: &[u8]) -> bool {
-    if m.len() < 12 || m[4..8] != *b"ftyp" {
-        return false;
+/// Magic bytes for image format detection
+mod magic_bytes {
+    /// Check if bytes represent a JPEG image.
+    pub fn is_jpeg(bytes: &[u8]) -> bool {
+        bytes.len() >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF
     }
-    let brand = &m[8..12];
-    brand == b"avif" || brand == b"avis" || brand == b"heic" || brand == b"mif1"
-}
-fn is_ico(m: &[u8]) -> bool {
-    m.len() >= 4 && m[0] == 0x00 && m[1] == 0x00 && (m[2] == 0x01 || m[2] == 0x02) && m[3] == 0x00
+
+    /// Check if bytes represent a PNG image.
+    pub fn is_png(bytes: &[u8]) -> bool {
+        bytes.len() >= 8 && bytes[..8] == [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]
+    }
+
+    /// Check if bytes represent a GIF image.
+    pub fn is_gif(bytes: &[u8]) -> bool {
+        bytes.len() >= 6 && (bytes[..6] == *b"GIF87a" || bytes[..6] == *b"GIF89a")
+    }
+
+    /// Check if bytes represent a BMP image.
+    pub fn is_bmp(bytes: &[u8]) -> bool {
+        bytes.len() >= 2 && bytes[0] == 0x42 && bytes[1] == 0x4D
+    }
+
+    /// Check if bytes represent a WebP image.
+    pub fn is_webp(bytes: &[u8]) -> bool {
+        bytes.len() >= 12 && bytes[8..12] == *b"WEBP" && bytes[..4] == [0x52, 0x49, 0x46, 0x46]
+    }
+
+    /// Check if bytes represent a little-endian TIFF image.
+    pub fn is_tiff_le(bytes: &[u8]) -> bool {
+        bytes.len() >= 4
+            && bytes[0] == 0x49
+            && bytes[1] == 0x49
+            && bytes[2] == 0x2A
+            && bytes[3] == 0x00
+    }
+
+    /// Check if bytes represent a big-endian TIFF image.
+    pub fn is_tiff_be(bytes: &[u8]) -> bool {
+        bytes.len() >= 4
+            && bytes[0] == 0x4D
+            && bytes[1] == 0x4D
+            && bytes[2] == 0x00
+            && bytes[3] == 0x2A
+    }
+
+    /// Check if bytes represent an AVIF/HEIF image.
+    pub fn is_avif_heif(bytes: &[u8]) -> bool {
+        if bytes.len() < 12 || bytes[4..8] != *b"ftyp" {
+            return false;
+        }
+        let brand = &bytes[8..12];
+        matches!(brand, b"avif" | b"avis" | b"heic" | b"mif1")
+    }
+
+    /// Check if bytes represent an ICO image.
+    pub fn is_ico(bytes: &[u8]) -> bool {
+        bytes.len() >= 4
+            && bytes[0] == 0x00
+            && bytes[1] == 0x00
+            && (bytes[2] == 0x01 || bytes[2] == 0x02)
+            && bytes[3] == 0x00
+    }
+
+    /// Check if bytes represent a supported image format.
+    pub fn is_supported_format(bytes: &[u8]) -> bool {
+        let header = &bytes[..bytes.len().min(12)];
+        is_jpeg(header)
+            || is_png(header)
+            || is_gif(header)
+            || is_bmp(header)
+            || is_webp(header)
+            || is_tiff_le(header)
+            || is_tiff_be(header)
+            || is_avif_heif(header)
+            || is_ico(header)
+    }
 }
 
 /// Validate that a file extension is a supported image format.

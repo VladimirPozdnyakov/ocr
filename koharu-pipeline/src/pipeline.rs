@@ -14,6 +14,30 @@ use crate::{
     state_tx::{self, ChangedField},
 };
 
+/// Configuration for a pipeline step.
+struct PipelineStepConfig {
+    changed_fields: &'static [ChangedField],
+}
+
+impl PipelineStepConfig {
+    fn changed_fields(&self) -> &'static [ChangedField] {
+        self.changed_fields
+    }
+}
+
+impl From<&PipelineStep> for PipelineStepConfig {
+    fn from(step: &PipelineStep) -> Self {
+        match step {
+            PipelineStep::Detect => Self {
+                changed_fields: &[ChangedField::TextBlocks, ChangedField::Segment],
+            },
+            PipelineStep::Ocr => Self {
+                changed_fields: &[ChangedField::TextBlocks],
+            },
+        }
+    }
+}
+
 pub struct PipelineHandle {
     pub id: String,
     pub cancel: Arc<AtomicBool>,
@@ -27,6 +51,7 @@ pub fn subscribe() -> broadcast::Receiver<PipelineProgress> {
 }
 
 fn emit(progress: PipelineProgress) {
+    // Fire-and-forget: failure to send doesn't affect processing.
     let _ = PIPELINE_TX.send(progress);
 }
 
@@ -138,25 +163,31 @@ async fn run_pipeline_inner(
                 overall_percent: overall,
             });
 
+            // Yield to allow other tasks between progress updates.
             tokio::task::yield_now().await;
             tokio::time::sleep(Duration::from_millis(1)).await;
 
             let mut snapshot = state_tx::read_doc(&res.state, doc_index).await?;
+            let config = PipelineStepConfig::from(step);
 
-            match step {
-                PipelineStep::Detect => res.ml.detect(&mut snapshot).await?,
-                PipelineStep::Ocr => res.ml.ocr(&mut snapshot).await?,
-            }
+            run_pipeline_step(res, &mut snapshot, step).await?;
 
-            let changed = match step {
-                PipelineStep::Detect => &[ChangedField::TextBlocks, ChangedField::Segment][..],
-                PipelineStep::Ocr => &[ChangedField::TextBlocks][..],
-            };
-            state_tx::update_doc(&res.state, doc_index, snapshot, changed).await?;
+            state_tx::update_doc(&res.state, doc_index, snapshot, config.changed_fields()).await?;
         }
     }
 
     Ok(())
+}
+
+async fn run_pipeline_step(
+    res: &AppResources,
+    snapshot: &mut koharu_types::Document,
+    step: &PipelineStep,
+) -> anyhow::Result<()> {
+    match step {
+        PipelineStep::Detect => res.ml.detect(snapshot).await,
+        PipelineStep::Ocr => res.ml.ocr(snapshot).await,
+    }
 }
 
 #[cfg(test)]

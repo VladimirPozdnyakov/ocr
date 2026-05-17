@@ -673,41 +673,33 @@ fn apply_text_block_patch(block: &mut TextBlock, patch: TextBlockPatch) {
         return;
     }
 
-    let mut geometry_changed = false;
+    let geometry_changed = patch_has_geometry_change(&patch);
 
-    if let Some(x) = patch.x {
-        if (block.x - x).abs() > f32::EPSILON {
-            geometry_changed = true;
-        }
-        block.x = x;
-    }
-    if let Some(y) = patch.y {
-        if (block.y - y).abs() > f32::EPSILON {
-            geometry_changed = true;
-        }
-        block.y = y;
-    }
-    if let Some(width) = patch.width {
-        if (block.width - width).abs() > f32::EPSILON {
-            geometry_changed = true;
-        }
-        block.width = width;
-    }
-    if let Some(height) = patch.height {
-        if (block.height - height).abs() > f32::EPSILON {
-            geometry_changed = true;
-        }
-        block.height = height;
-    }
+    block.x = patch.x.unwrap_or(block.x);
+    block.y = patch.y.unwrap_or(block.y);
+    block.width = patch.width.unwrap_or(block.width);
+    block.height = patch.height.unwrap_or(block.height);
 
     if geometry_changed {
         block.set_layout_seed(block.x, block.y, block.width, block.height);
     }
-    if (previous_width - block.width).abs() > f32::EPSILON
-        || (previous_height - block.height).abs() > f32::EPSILON
-    {
+    if dimension_changed(previous_width, previous_height, block.width, block.height) {
         block.lock_layout_box = true;
     }
+}
+
+fn patch_has_geometry_change(patch: &TextBlockPatch) -> bool {
+    (patch.x.is_some() && patch.y.is_some()) || (patch.width.is_some() && patch.height.is_some())
+}
+
+fn dimension_changed(
+    previous_width: f32,
+    previous_height: f32,
+    new_width: f32,
+    new_height: f32,
+) -> bool {
+    (previous_width - new_width).abs() > f32::EPSILON
+        || (previous_height - new_height).abs() > f32::EPSILON
 }
 
 #[cfg(test)]

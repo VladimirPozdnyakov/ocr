@@ -12,17 +12,22 @@ use crate::font_detector::{self, FontDetector};
 use crate::paddleocr_vl::{self, PaddleOcrVl, PaddleOcrVlTask};
 use crate::pp_doclayout_v3::{self, LayoutRegion, PPDocLayoutV3};
 
+// Region filtering thresholds
+const MIN_BLOCK_DIMENSION: f32 = 6.0;
+const MIN_BLOCK_AREA: f32 = 48.0;
+const BLOCK_PADDING_RATIO: f32 = 0.08;
+const VERTICAL_ASPECT_RATIO_THRESHOLD: f32 = 1.15;
+const BLOCK_OVERLAP_DEDUPE_THRESHOLD: f32 = 0.9;
+
+// Color normalization thresholds
 const NEAR_THRESHOLD: u8 = 12;
 const GRAY_NEAR_THRESHOLD: u8 = 60;
 const GRAY_TOLERANCE: u8 = 10;
 const SIMILAR_COLOR_MAX_DIFF: u8 = 16;
+
+// OCR settings
 const PP_DOCLAYOUT_THRESHOLD: f32 = 0.25;
-const VERTICAL_ASPECT_RATIO_THRESHOLD: f32 = 1.15;
-const BLOCK_OVERLAP_DEDUPE_THRESHOLD: f32 = 0.9;
 const OCR_MAX_NEW_TOKENS: usize = 128;
-const MIN_BLOCK_DIMENSION: f32 = 6.0;
-const MIN_BLOCK_AREA: f32 = 48.0;
-const BLOCK_PADDING_RATIO: f32 = 0.08;
 
 fn require_nonzero_dimensions(width: u32, height: u32, operation: &str) -> Result<()> {
     if width == 0 || height == 0 {
@@ -31,6 +36,7 @@ fn require_nonzero_dimensions(width: u32, height: u32, operation: &str) -> Resul
     Ok(())
 }
 
+/// Color boundary for clamping operations.
 #[derive(Clone, Copy)]
 enum ColorBoundary {
     Black,
