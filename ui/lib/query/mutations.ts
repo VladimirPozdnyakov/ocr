@@ -9,8 +9,8 @@ import { TextBlock } from '@/types'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
 import { useOperationStore } from '@/lib/stores/operationStore'
 import { queryKeys } from '@/lib/query/keys'
-import { enqueueTextBlockSync } from '@/lib/services/syncQueues'
 import { logger } from '@/lib/logger'
+import { saveTextBlocksToStorage } from '@/lib/services/localStorage'
 import { useToast } from '@/hooks/useToast'
 
 const invalidateCurrentDocument = async (
@@ -54,16 +54,14 @@ export const useTextBlockMutations = () => {
     async (textBlocks: TextBlock[]) => {
       const { currentDocumentIndex } = useEditorUiStore.getState()
       const queryKey = queryKeys.documents.current(currentDocumentIndex)
-      // Cancel in-flight refetches to prevent stale server data from
-      // overwriting the optimistic update below.
       void queryClient.cancelQueries({ queryKey })
       const currentDocument = queryClient.getQueryData<DocumentDetail>(queryKey)
       if (!currentDocument) return
       queryClient.setQueryData(queryKey, {
         ...currentDocument,
         textBlocks,
-      })
-      await enqueueTextBlockSync(currentDocumentIndex, textBlocks)
+      } as DocumentDetail)
+      saveTextBlocksToStorage(currentDocumentIndex, textBlocks as unknown[])
     },
     [queryClient],
   )

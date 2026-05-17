@@ -152,6 +152,17 @@
     "deviceDescription": "Hardware acceleration information.",
     "deviceMl": "ML Compute"
   },
+  "tabs": {
+    "textBlocks": "Text Blocks",
+    "layers": "Layers",
+    "settings": "Settings",
+    "settingsComingSoon": "Settings panel coming soon"
+  },
+  "layers": {
+    "title": "LAYERS",
+    "emptyPrompt": "Open an image to see layers.",
+    "noLayers": "No layers to display"
+  },
   "aria": {
     "lilithTeamLogo": "Lilith Team Logo",
     "detectTextBlocks": "Detect text blocks",

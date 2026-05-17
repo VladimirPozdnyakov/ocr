@@ -4,6 +4,28 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { queryKeys } from '@/lib/query/keys'
 import { useEditorUiStore } from '@/lib/stores/editorUiStore'
+import { loadTextBlocksFromStorage } from '@/lib/services/localStorage'
+import type { Document, TextBlock } from '@/types'
+
+const fetchDocumentWithStorage = async (index: number): Promise<Document> => {
+  const doc = await api.getDocument(index)
+  const storedTextBlocks = loadTextBlocksFromStorage(index)
+  const textBlocks: TextBlock[] = storedTextBlocks && storedTextBlocks.length > 0
+    ? (storedTextBlocks as TextBlock[])
+    : (doc.textBlocks as TextBlock[])
+
+  return {
+    id: doc.id,
+    path: doc.path,
+    name: doc.name,
+    image: doc.image,
+    width: doc.width,
+    height: doc.height,
+    revision: doc.revision,
+    textBlocks,
+    segment: doc.segment,
+  }
+}
 
 export const useDocumentsCountQuery = (enabled = true) =>
   useQuery({
@@ -15,10 +37,14 @@ export const useDocumentsCountQuery = (enabled = true) =>
 export const useCurrentDocumentQuery = (index: number, enabled = true) =>
   useQuery({
     queryKey: queryKeys.documents.current(index),
-    queryFn: () => api.getDocument(index),
+    queryFn: () => fetchDocumentWithStorage(index),
     enabled,
     placeholderData: keepPreviousData,
     structuralSharing: false,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
 export const useCurrentDocumentState = () => {
@@ -48,6 +74,7 @@ export const useThumbnailQuery = (index: number, documentsVersion: number) =>
     queryFn: () => api.getThumbnail(index),
     structuralSharing: false,
     staleTime: THUMBNAIL_STALE_MS,
+    refetchOnWindowFocus: false,
   })
 
 export const useFontsQuery = () =>

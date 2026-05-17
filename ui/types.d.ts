@@ -54,13 +54,13 @@ export type TextBlock = {
   fontPrediction?: FontPrediction
 }
 
-export type ToolMode = 'select' | 'block'
+export type ToolMode = 'select' | 'block' | 'pan'
 
 export type Document = {
   id: string
   path: string
   name: string
-  image: Uint8Array
+  image?: Uint8Array
   width: number
   height: number
   revision?: number

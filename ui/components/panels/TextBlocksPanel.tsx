@@ -23,9 +23,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import { DraftTextarea } from '@/components/ui/draft-textarea'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useState, useRef, memo } from 'react'
+import { RichTextarea } from '@/components/ui/rich-textarea'
+import { useState, useRef, memo, useCallback } from 'react'
 
 export function TextBlocksPanel() {
   const {
@@ -246,13 +246,16 @@ const BlockCard = memo(
     const preview = block.text?.trim()
     const dragHandleRef = useRef<HTMLDivElement>(null)
 
+    const handleChange = useCallback(
+      (value: string) => {
+        onChange({ text: value })
+      },
+      [onChange],
+    )
+
     return (
-      <motion.div
+      <div
         data-testid={`textblock-card-${index}`}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0, scale: isDragging ? 1.02 : 1 }}
-        exit={{ opacity: 0, x: 20 }}
-        transition={{ duration: 0.2, delay: index * 0.02 }}
         className={`relative min-w-0 ${isDragging ? 'opacity-60' : ''} ${isDragOver ? 'border-luxury-gold border-t-2 pt-2' : ''}`}
         draggable
         onDragStart={onDragStart}
@@ -337,14 +340,13 @@ const BlockCard = memo(
                 </Tooltip>
               </div>
 
-              {/* Textarea with Luxury Editorial styling */}
+              {/* Rich Text Editor */}
               <div className='relative min-w-0'>
-                <DraftTextarea
-                  data-testid={`textblock-ocr-${index}`}
+                <RichTextarea
                   value={block.text ?? ''}
+                  onValueChange={handleChange}
                   placeholder={t('textBlocks.addOcrPlaceholder')}
-                  onValueChange={(value) => onChange({ text: value })}
-                  className='luxury-border luxury-shadow bg-card text-foreground focus:border-luxury-gold focus:ring-luxury-gold/20 max-h-48 min-h-[60px] w-full resize-y overflow-x-hidden rounded-sm px-3 py-2 font-mono text-[10px] break-all'
+                  minHeight='100px'
                 />
               </div>
             </div>
@@ -357,7 +359,7 @@ const BlockCard = memo(
             <div className='luxury-accent-line bg-luxury-gold/30 h-px w-8' />
           </div>
         )}
-      </motion.div>
+      </div>
     )
   },
   (prev, next) =>

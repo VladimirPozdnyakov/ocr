@@ -12,6 +12,8 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu'
 import { useTranslation } from 'react-i18next'
+import { ZoomInIcon, ZoomOutIcon, Maximize2Icon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Image } from '@/components/Image'
 import {
   setCanvasViewport,
@@ -111,8 +113,9 @@ export const Workspace = memo(function Workspace() {
         const mouseEvent = event as MouseEvent
         const isMiddleButton = mouseEvent.button === 1
         const isCtrlDrag = ctrlKey && mouseEvent.button === 0
+        const isPanMode = mode === 'pan'
 
-        if (!isMiddleButton && !isCtrlDrag) {
+        if (!isMiddleButton && !isCtrlDrag && !isPanMode) {
           if (first && cancel) cancel()
           return memo
         }
@@ -121,7 +124,7 @@ export const Workspace = memo(function Workspace() {
         if (!viewport) return memo
 
         if (first) {
-          if (isMiddleButton) setIsPanning(true)
+          if (isMiddleButton || isPanMode) setIsPanning(true)
           return {
             scrollLeft: viewport.scrollLeft,
             scrollTop: viewport.scrollTop,
@@ -135,7 +138,7 @@ export const Workspace = memo(function Workspace() {
       },
       onDragEnd: ({ event }) => {
         const mouseEvent = event as MouseEvent
-        if (mouseEvent.button === 1) setIsPanning(false)
+        if (mouseEvent.button === 1 || mode === 'pan') setIsPanning(false)
       },
       onWheel: ({ ctrlKey, delta: [, dy], event }) => {
         if (!currentDocument || !ctrlKey) return
@@ -200,8 +203,8 @@ export const Workspace = memo(function Workspace() {
     handleContextMenu(event)
   }
 
-  const canvasCursor = isPanning
-    ? 'grabbing'
+  const canvasCursor = isPanning || mode === 'pan'
+    ? 'grab'
     : mode === 'block'
       ? 'cell'
       : 'default'
@@ -326,7 +329,73 @@ export const Workspace = memo(function Workspace() {
             <ScrollAreaPrimitive.Thumb className='bg-muted-foreground/40 rounded' />
           </ScrollAreaPrimitive.Scrollbar>
         </ScrollAreaPrimitive.Root>
+        {currentDocument && (
+          <FloatingZoomControls />
+        )}
       </div>
     </div>
   )
 })
+
+function FloatingZoomControls() {
+  const scale = useEditorUiStore((state) => state.scale)
+  const autoFitEnabled = useEditorUiStore((state) => state.autoFitEnabled)
+  const setScale = useEditorUiStore((state) => state.setScale)
+  const setAutoFitEnabled = useEditorUiStore((state) => state.setAutoFitEnabled)
+
+  const handleZoomIn = () => {
+    setAutoFitEnabled(false)
+    setScale(scale + 25)
+  }
+
+  const handleZoomOut = () => {
+    setAutoFitEnabled(false)
+    setScale(scale - 25)
+  }
+
+  const handleFitWindow = () => {
+    setAutoFitEnabled(true)
+  }
+
+  return (
+    <div className='luxury-border-subtle bg-card/90 absolute bottom-4 right-4 flex items-center gap-1 rounded-md border p-1.5 shadow-lg backdrop-blur'>
+      <Button
+        variant='ghost'
+        size='icon-xs'
+        onClick={handleZoomOut}
+        disabled={scale <= 25}
+        className='size-7 hover:bg-luxury-gold/10'
+      >
+        <ZoomOutIcon className='size-3.5' />
+      </Button>
+      <button
+        onClick={handleFitWindow}
+        className={`min-w-[50px] rounded px-1.5 py-0.5 text-[10px] font-mono font-medium transition-colors ${
+          autoFitEnabled
+            ? 'bg-luxury-gold/20 text-luxury-gold'
+            : 'text-muted-foreground hover:bg-luxury-gold/10'
+        }`}
+      >
+        {autoFitEnabled ? 'Fit' : `${scale}%`}
+      </button>
+      <Button
+        variant='ghost'
+        size='icon-xs'
+        onClick={handleZoomIn}
+        disabled={scale >= 300}
+        className='size-7 hover:bg-luxury-gold/10'
+      >
+        <ZoomInIcon className='size-3.5' />
+      </Button>
+      <div className='mx-0.5 h-4 w-px bg-border' />
+      <Button
+        variant='ghost'
+        size='icon-xs'
+        onClick={handleFitWindow}
+        className='size-7 hover:bg-luxury-gold/10'
+      >
+        <Maximize2Icon className='size-3.5' />
+      </Button>
+    </div>
+  )
+}

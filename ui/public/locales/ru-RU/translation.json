@@ -152,6 +152,17 @@
     "deviceDescription": "Информация об аппаратном ускорении.",
     "deviceMl": "ML Compute"
   },
+  "tabs": {
+    "textBlocks": "Текст",
+    "layers": "Слои",
+    "settings": "Настройки",
+    "settingsComingSoon": "Панель настроек скоро появится"
+  },
+  "layers": {
+    "title": "СЛОИ",
+    "emptyPrompt": "Откройте изображение, чтобы увидеть слои.",
+    "noLayers": "Нет слоев для отображения"
+  },
   "aria": {
     "lilithTeamLogo": "Логотип Lilith Team",
     "detectTextBlocks": "Детектировать текстовые блоки",
